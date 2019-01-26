@@ -7,9 +7,12 @@
 #include <boost/core/noncopyable.hpp>
 
 #include <cassert>
+#include <functional>
 #include <stdexcept>
 
 namespace Chess {
+
+using StateChangeEvent = std::function<void()>;
 
 enum class Side {
     White,
@@ -108,6 +111,8 @@ struct PieceBase : private boost::noncopyable {
         pos_ = pos;
 
         if (alive()) pieceMap[pos_] = this;
+
+        if (onSetPos_) onSetPos_();
     }
 
     BoardField pos() const {
@@ -130,6 +135,10 @@ struct PieceBase : private boost::noncopyable {
         return side_;
     }
 
+    StateChangeEvent & onSetPos() {
+        return onSetPos_;
+    }
+
 protected:
     BoardField board() const {
         return game_.board();
@@ -144,6 +153,8 @@ protected:
     BoardField const startingPos_;
 
 private:
+    StateChangeEvent onSetPos_;
+
     Game & game_;
 };
 

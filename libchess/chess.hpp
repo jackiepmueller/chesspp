@@ -20,4 +20,10 @@
 #include "game.hpp"
 #include "game_context.hpp"
 
+namespace Chess {
+
+using StateChangeEvent = std::function<void()>;
+
+} // namespace Chess
+
 #endif

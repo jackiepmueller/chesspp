@@ -6,6 +6,8 @@
 
 namespace Chess {
 struct ChessPP {
+    ChessPP();
+
     void run();
 
 private:
