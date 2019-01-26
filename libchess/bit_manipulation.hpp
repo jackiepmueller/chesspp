@@ -28,36 +28,36 @@ static constexpr File F = 5;
 static constexpr File G = 6;
 static constexpr File H = 7;
 
-std::size_t rankAndFileToOrdinal(Rank rank, File file)
+inline std::size_t rankAndFileToOrdinal(Rank rank, File file)
 {
     return rank * 8 + file;
 }
 
-BoardField rankAndFileToBoardField(Rank rank, File file)
+inline BoardField rankAndFileToBoardField(Rank rank, File file)
 {
     return uint64_t(1) << rankAndFileToOrdinal(rank, file);
 }
 
-std::size_t boardFieldToOrdinal(BoardField bf)
+inline std::size_t boardFieldToOrdinal(BoardField bf)
 {
     std::size_t ordinal = 0;
     while (bf = bf >> uint64_t(1), bf) ++ordinal;
     return ordinal;
 }
 
-Rank rankFromBoardField(BoardField bf)
+inline Rank rankFromBoardField(BoardField bf)
 {
     auto ord = boardFieldToOrdinal(bf);
     return ord / 8;
 }
 
-File fileFromBoardField(BoardField bf)
+inline File fileFromBoardField(BoardField bf)
 {
     auto ord = boardFieldToOrdinal(bf);
     return ord % 8;
 }
 
-bool validPosition(BoardField bf)
+inline bool validPosition(BoardField bf)
 {
     return (bf == 0) || (bf && !(bf & (bf - 1)));
 }
