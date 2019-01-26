@@ -1,0 +1,3 @@
+executable(test
+    chess
+)
