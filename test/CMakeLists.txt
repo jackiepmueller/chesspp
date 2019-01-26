@@ -1,3 +1,3 @@
-executable(test
+executable(test_chesspp
     chess
 )

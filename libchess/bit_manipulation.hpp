@@ -57,6 +57,11 @@ File fileFromBoardField(BoardField bf)
     return ord % 8;
 }
 
+bool validPosition(BoardField bf)
+{
+    return (bf == 0) || (bf && !(bf & (bf - 1)));
+}
+
 } // namespace Chess
 
 #endif

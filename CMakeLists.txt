@@ -12,7 +12,7 @@ set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/output CACHE PATH "")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
 
-set(BOOST_INCLUDE "/src/boost_1_69_0" CACHE PATH "Boost include directory")
+set(BOOST_INCLUDE "/src/boost" CACHE PATH "Boost include directory")
 
 add_subdirectory(libchess)
 add_subdirectory(test)

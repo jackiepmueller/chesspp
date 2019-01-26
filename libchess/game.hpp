@@ -3,12 +3,14 @@
 
 #include "bit_manipulation.hpp"
 
+#include <unordered_map>
 #include <vector>
 
 namespace Chess {
 
 struct PieceBase;
 
+using PieceMap = std::unordered_map<BoardField, PieceBase *>;
 using PieceVector = std::vector<PieceBase *>;
 
 struct Game {
@@ -28,7 +30,16 @@ struct Game {
         return pieces_;
     }
 
+    PieceMap const & pieceMap() const {
+        return pieceMap_;
+    }
+
+    PieceMap & pieceMap() {
+        return pieceMap_;
+    }
+
 private:
+    PieceMap pieceMap_;
     PieceVector pieces_;
     BoardField board_ = 0;
 };

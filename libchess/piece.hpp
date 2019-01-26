@@ -7,13 +7,21 @@
 #include <boost/core/noncopyable.hpp>
 
 #include <cassert>
+#include <stdexcept>
 
 namespace Chess {
+
+enum class Side {
+    White,
+    Black
+};
 
 struct Black;
 
 struct White {
     using OtherSide = Black;
+
+    static constexpr Side side = Side::White;
 
     static BoardField forwardShift(BoardField bf, size_t n) {
         return bf << n;
@@ -36,6 +44,9 @@ struct White {
 
 struct Black {
     using OtherSide = White;
+
+    static constexpr Side side = Side::Black;
+
     static BoardField forwardShift(BoardField bf, size_t n) {
         return bf >> n;
     }
@@ -64,11 +75,20 @@ enum class Diagonal : uint8_t {
 };
 
 struct PieceBase : private boost::noncopyable {
-    PieceBase(BoardField startingPos, Game & game)
-        : pos_(startingPos)
+    PieceBase(Side side, BoardField startingPos, Game & game)
+        : side_(side)
+        , pos_(0)
         , startingPos_(startingPos)
         , game_(game)
     { 
+        bool const occupied = (game_.board() & pos());
+        assert(!occupied);
+        if (occupied) {
+            throw std::runtime_error("error trying to place piece on occupied spot");
+        }
+
+        setPos(startingPos);
+
         game_.board() |= pos();
         game_.pieces().push_back(this);
     }
@@ -78,10 +98,16 @@ struct PieceBase : private boost::noncopyable {
     }
 
     void setPos(BoardField pos) {
-        auto & board = this->board();
+        assert(validPosition(pos));
+        auto & board = game_.board();
+        auto & pieceMap = game_.pieceMap();
+
+        pieceMap[pos_] = nullptr;
         board &= ~pos_;
         board |= pos;
         pos_ = pos;
+
+        if (alive()) pieceMap[pos_] = this;
     }
 
     BoardField pos() const {
@@ -89,15 +115,19 @@ struct PieceBase : private boost::noncopyable {
     }
 
     Rank rank() const {
-        return rankFromBoardField(pos_);
+        return rankFromBoardField(pos());
     }
 
     File file() const {
-        return fileFromBoardField(pos_);
+        return fileFromBoardField(pos());
     }
 
     bool alive() const {
         return pos() != 0;
+    }
+
+    Side side() const {
+        return side_;
     }
 
 protected:
@@ -109,7 +139,8 @@ protected:
         return game_.board();
     }
 
-    BoardField pos_;
+    Side const side_;
+    BoardField pos_; // never modify directly
     BoardField const startingPos_;
 
 private:
@@ -118,10 +149,10 @@ private:
 
 using TryResult = std::pair<bool, BoardField>;
 
-template <typename Side>
+template <typename SideType>
 struct Piece : PieceBase {
     Piece(BoardField startingPos, Game & game)
-        : PieceBase(startingPos, game)
+        : PieceBase(SideType::side, startingPos, game)
     { 
     }
 
@@ -130,10 +161,10 @@ struct Piece : PieceBase {
     BoardField left(File n);
     BoardField right(File n);
 
-    TryResult tryForward(Rank n, bool canTake = false);
-    TryResult tryBack(Rank n, bool canTake = false);
-    TryResult tryLeft(File n, bool canTake = false);
-    TryResult tryRight(File n, bool canTake = false);
+    TryResult tryForward(Rank n, bool canTake = true);
+    TryResult tryBack(Rank n, bool canTake = true);
+    TryResult tryLeft(File n, bool canTake = true);
+    TryResult tryRight(File n, bool canTake = true);
 
     BoardField diagonal(uint8_t n, Diagonal diagonal) {
         switch (diagonal) {
@@ -158,22 +189,22 @@ struct Piece : PieceBase {
     }
 };
 
-template <typename Side>
-BoardField Piece<Side>::forward(Rank n) {
+template <typename SideType>
+BoardField Piece<SideType>::forward(Rank n) {
     assert(n <= 7);
-    pos_ = Side::forwardShift(pos_, n * 8);
+    pos_ = SideType::forwardShift(pos_, n * 8);
     return pos_;
 }
 
-template <typename Side>
-BoardField Piece<Side>::back(Rank n) {
+template <typename SideType>
+BoardField Piece<SideType>::back(Rank n) {
     assert(n <= 7);
-    pos_ = Side::backShift(pos_, n * 8);
+    pos_ = SideType::backShift(pos_, n * 8);
     return pos_;
 }
 
-template <typename Side>
-TryResult Piece<Side>::tryForward(Rank n, bool canTake) {
+template <typename SideType>
+TryResult Piece<SideType>::tryForward(Rank n, bool canTake) {
     TryResult res { false, 0 };
     if (n > 7) {
         return res;
@@ -182,8 +213,8 @@ TryResult Piece<Side>::tryForward(Rank n, bool canTake) {
     // sweep up to just before the destination
     BoardField tmp;
     for (Rank i = 1; i <= n; ++i) {
-        tmp = Side::forwardShift(pos_, i * 8);
-        if (!Side::forwardCompare(tmp, pos_)) {
+        tmp = SideType::forwardShift(pos_, i * 8);
+        if (!SideType::forwardCompare(tmp, pos_)) {
             return res;
         }
         if (tmp & this->board()) {
@@ -200,8 +231,8 @@ TryResult Piece<Side>::tryForward(Rank n, bool canTake) {
     return res;
 }
 
-template <typename Side>
-TryResult Piece<Side>::tryBack(Rank n, bool canTake) {
+template <typename SideType>
+TryResult Piece<SideType>::tryBack(Rank n, bool canTake) {
     TryResult res { false, 0 };
     if (n > 7) {
         return res;
@@ -210,8 +241,8 @@ TryResult Piece<Side>::tryBack(Rank n, bool canTake) {
     // sweep up to just before the destination
     BoardField tmp;
     for (Rank i = 1; i <= n; ++i) {
-        tmp = Side::backShift(pos_, i * 8);
-        if (!Side::backCompare(tmp, pos_)) {
+        tmp = SideType::backShift(pos_, i * 8);
+        if (!SideType::backCompare(tmp, pos_)) {
             return res;
         }
         if (tmp & this->board()) {
@@ -245,10 +276,10 @@ struct Pawn : FirstMoveConcept {
         auto & derived = static_cast<Derived &>(*this);
 
         BoardField bf = 0;
-        auto res = derived.tryForward(1);
+        auto res = derived.tryForward(1, /* canTake */false);
         if (res.first) bf |= res.second;
         if (!derived.moved()) {
-            res = derived.tryForward(2);
+            res = derived.tryForward(2, /* canTake */false);
             if (res.first) bf |= res.second;
         }
         // TODO check for diagonal attacks
