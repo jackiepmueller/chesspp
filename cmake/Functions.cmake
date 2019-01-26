@@ -1,3 +1,9 @@
+function(find_boost)
+    set(BOOST_ROOT "/src/boost")
+    find_package(Boost REQUIRED)
+    set(BOOST_INCLUDE ${Boost_INCLUDE_DIRS} PARENT_SCOPE)
+endfunction()
+
 function(header_library target)
     cmake_parse_arguments(HEADER_LIBRARY "" "" "" ${ARGN})
     add_library(${target} INTERFACE)
