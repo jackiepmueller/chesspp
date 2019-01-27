@@ -2,14 +2,14 @@
 #define GAME_CONTEXT_HPP
 
 #include "piece.hpp"
-#include "game.hpp"
+#include "game_state.hpp"
 
 #include <vector>
 
 namespace Chess {
 
 struct GameContext {
-    Game game;
+    GameState gameState;
 
     WhitePawn wP1;
     WhitePawn wP2;
@@ -30,23 +30,23 @@ struct GameContext {
     BlackPawn bP8;
 
     GameContext() 
-        : wP1(rankAndFileToBoardField(Two, A), game)
-        , wP2(rankAndFileToBoardField(Two, B), game)
-        , wP3(rankAndFileToBoardField(Two, C), game)
-        , wP4(rankAndFileToBoardField(Two, D), game)
-        , wP5(rankAndFileToBoardField(Two, E), game)
-        , wP6(rankAndFileToBoardField(Two, F), game)
-        , wP7(rankAndFileToBoardField(Two, G), game)
-        , wP8(rankAndFileToBoardField(Two, H), game)
+        : wP1(rankAndFileToBoardField(Two, A), gameState)
+        , wP2(rankAndFileToBoardField(Two, B), gameState)
+        , wP3(rankAndFileToBoardField(Two, C), gameState)
+        , wP4(rankAndFileToBoardField(Two, D), gameState)
+        , wP5(rankAndFileToBoardField(Two, E), gameState)
+        , wP6(rankAndFileToBoardField(Two, F), gameState)
+        , wP7(rankAndFileToBoardField(Two, G), gameState)
+        , wP8(rankAndFileToBoardField(Two, H), gameState)
 
-        , bP1(rankAndFileToBoardField(Seven, H), game)
-        , bP2(rankAndFileToBoardField(Seven, G), game)
-        , bP3(rankAndFileToBoardField(Seven, F), game)
-        , bP4(rankAndFileToBoardField(Seven, E), game)
-        , bP5(rankAndFileToBoardField(Seven, D), game)
-        , bP6(rankAndFileToBoardField(Seven, C), game)
-        , bP7(rankAndFileToBoardField(Seven, B), game)
-        , bP8(rankAndFileToBoardField(Seven, A), game)
+        , bP1(rankAndFileToBoardField(Seven, H), gameState)
+        , bP2(rankAndFileToBoardField(Seven, G), gameState)
+        , bP3(rankAndFileToBoardField(Seven, F), gameState)
+        , bP4(rankAndFileToBoardField(Seven, E), gameState)
+        , bP5(rankAndFileToBoardField(Seven, D), gameState)
+        , bP6(rankAndFileToBoardField(Seven, C), gameState)
+        , bP7(rankAndFileToBoardField(Seven, B), gameState)
+        , bP8(rankAndFileToBoardField(Seven, A), gameState)
     { }
 
 };

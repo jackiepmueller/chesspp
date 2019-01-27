@@ -5,6 +5,8 @@
 
 #include <ncurses.h>
 
+#include <string>
+
 //            012345678901234567890
 //   013456789111111111122222222223
 //  0                              
@@ -39,7 +41,7 @@
 // 29                              
 // 30    A  B  C  D  E  F  G  H    
 // 31                              
-// 32 W(*) B( )                    
+// 32 W(*) B( ) xx message area xxxxxxxxxxxx
 // 33                              
 // 34 >                            
 // 35                              
@@ -47,14 +49,24 @@
 namespace Chess {
 namespace UI {
 
+struct Position {
+    constexpr Position(size_t row, size_t col) : row(row), col(col) { }
+    size_t row;
+    size_t col;
+};
+
 struct UserInterface {
-    UserInterface(Game & game);
+    UserInterface(GameContext & gc);
 
     void run();
     void redraw();
 
 private:
-    Game const & game_;
+    void runCommand();
+    void drawCommand();
+
+    std::string cmd_;
+    GameContext & gc_;
 };
 
 } // namespace UI

@@ -2,7 +2,7 @@
 #define CHESS_TYPES_HPP
 
 #include "bit_manipulation.hpp"
-#include "game.hpp"
+#include "game_state.hpp"
 
 #include <boost/core/noncopyable.hpp>
 
@@ -78,13 +78,13 @@ enum class Diagonal : uint8_t {
 };
 
 struct PieceBase : private boost::noncopyable {
-    PieceBase(Side side, BoardField startingPos, Game & game)
+    PieceBase(Side side, BoardField startingPos, GameState & gameState)
         : side_(side)
         , pos_(0)
         , startingPos_(startingPos)
-        , game_(game)
+        , gameState_(gameState)
     { 
-        bool const occupied = (game_.board() & pos());
+        bool const occupied = (gameState_.board() & pos());
         assert(!occupied);
         if (occupied) {
             throw std::runtime_error("error trying to place piece on occupied spot");
@@ -92,8 +92,8 @@ struct PieceBase : private boost::noncopyable {
 
         setPos(startingPos);
 
-        game_.board() |= pos();
-        game_.pieces().push_back(this);
+        gameState_.board() |= pos();
+        gameState_.pieces().push_back(this);
     }
 
     void setPos(Rank rank, File file) {
@@ -102,8 +102,8 @@ struct PieceBase : private boost::noncopyable {
 
     void setPos(BoardField pos) {
         assert(validPosition(pos));
-        auto & board = game_.board();
-        auto & pieceMap = game_.pieceMap();
+        auto & board = gameState_.board();
+        auto & pieceMap = gameState_.pieceMap();
 
         pieceMap[pos_] = nullptr;
         board &= ~pos_;
@@ -139,31 +139,40 @@ struct PieceBase : private boost::noncopyable {
         return onSetPos_;
     }
 
+    char identifier() const {
+        return identifier_;
+    }
+
+    void setIdentifier(char id) {
+        identifier_ = id;
+    }
+
 protected:
     BoardField board() const {
-        return game_.board();
+        return gameState_.board();
     }
 
     BoardField & board() {
-        return game_.board();
+        return gameState_.board();
     }
 
     Side const side_;
     BoardField pos_; // never modify directly
     BoardField const startingPos_;
+    char identifier_;
 
 private:
     StateChangeEvent onSetPos_;
 
-    Game & game_;
+    GameState & gameState_;
 };
 
 using TryResult = std::pair<bool, BoardField>;
 
 template <typename SideType>
 struct Piece : PieceBase {
-    Piece(BoardField startingPos, Game & game)
-        : PieceBase(SideType::side, startingPos, game)
+    Piece(BoardField startingPos, GameState & gameState)
+        : PieceBase(SideType::side, startingPos, gameState)
     { 
     }
 
@@ -283,6 +292,11 @@ struct NoFirstMoveConcept {
 
 template <typename Derived>
 struct Pawn : FirstMoveConcept {
+    Pawn() {
+        auto & derived = static_cast<Derived &>(*this);
+        derived.setIdentifier('P');
+    }
+
     BoardField validMoves() {
         auto & derived = static_cast<Derived &>(*this);
 
@@ -298,6 +312,7 @@ struct Pawn : FirstMoveConcept {
     }
 
     bool move(BoardField pos) {
+        assert(validPosition(pos));
         auto const validMoves = this->validMoves();
         auto & derived = static_cast<Derived &>(*this);
         if (pos & validMoves) {
@@ -317,8 +332,8 @@ struct WhitePawn
     : Piece<White>
     , Pawn<WhitePawn>
 {
-    WhitePawn(BoardField startingPos, Game & game)
-        : Piece<White>(startingPos, game)
+    WhitePawn(BoardField startingPos, GameState & gameState)
+        : Piece<White>(startingPos, gameState)
     { }
 };
 
@@ -326,8 +341,8 @@ struct BlackPawn
     : Piece<Black>
     , Pawn<BlackPawn>
 {
-    BlackPawn(BoardField startingPos, Game & game)
-        : Piece<Black>(startingPos, game)
+    BlackPawn(BoardField startingPos, GameState & gameState)
+        : Piece<Black>(startingPos, gameState)
     { }
 };
 

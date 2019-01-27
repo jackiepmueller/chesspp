@@ -1,1 +1,1 @@
-header_library(chess)
+library(chess)

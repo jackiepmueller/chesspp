@@ -3,7 +3,8 @@
 using namespace Chess;
 
 ChessPP::ChessPP()
-    : ui_(gc_.game)
+    : gc_()
+    , ui_(gc_)
 {
 }
 

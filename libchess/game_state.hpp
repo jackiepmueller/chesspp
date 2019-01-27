@@ -1,5 +1,5 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#ifndef GAME_STATE_HPP
+#define GAME_STATE_HPP
 
 #include "bit_manipulation.hpp"
 
@@ -13,7 +13,7 @@ struct PieceBase;
 using PieceMap = std::unordered_map<BoardField, PieceBase *>;
 using PieceVector = std::vector<PieceBase *>;
 
-struct Game {
+struct GameState {
     BoardField board() const {
         return board_;
     }
