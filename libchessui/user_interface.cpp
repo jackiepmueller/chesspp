@@ -126,18 +126,30 @@ void UserInterface::runCommand()
         std::vector<std::string> tokens;
         boost::split(tokens, cmd_, boost::is_any_of(" "));
 
-        {
-            auto from = tokens[0];
-            auto to = tokens[1];
-            msg_ = "move " + from + " to " + to;
+        if (tokens.size() != 2) {
+            msg_ = "Invalid number of params";
+            goto End;
         }
 
         auto from = positionFromString(tokens[0]);
         auto to   = positionFromString(tokens[1]);
 
-        auto * piece = gc_.gameState.pieceMap()[from];
-        piece->move(to);
+        auto & pieceMap = gc_.gameState.pieceMap();
+        auto piece = pieceMap[from];
+        if (piece) {
+            if (!piece->move(to)) {
+                msg_ = "Couldn't move to " + tokens[1];
+            }
+            else {
+                msg_ = "Move " + tokens[0] + " to " + tokens[1];
+            }
+        }
+        else {
+            msg_ = "No piece at " + tokens[0];
+        }
     }
+
+End:
     cmd_.clear();
 }
 
