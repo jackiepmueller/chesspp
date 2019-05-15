@@ -1,5 +1,7 @@
 #include "user_interface.hpp"
 
+#include <boost/algorithm/string.hpp>
+
 #include <functional>
 
 using namespace Chess::UI;
@@ -116,9 +118,25 @@ void UserInterface::redraw()
 void UserInterface::runCommand()
 {
     if (cmd_ == "test") {
-        gc_.wP1.move(Three, A);
-        gc_.bP3.move(Five, F);
+        //gc_.wP1.move(Three, A);
+        //gc_.bP3.move(Five, F);
         msg_ = "the message";
+    }
+    else {
+        std::vector<std::string> tokens;
+        boost::split(tokens, cmd_, boost::is_any_of(" "));
+
+        {
+            auto from = tokens[0];
+            auto to = tokens[1];
+            msg_ = "move " + from + " to " + to;
+        }
+
+        auto from = positionFromString(tokens[0]);
+        auto to   = positionFromString(tokens[1]);
+
+        auto * piece = gc_.gameState.pieceMap()[from];
+        piece->move(to);
     }
     cmd_.clear();
 }
@@ -133,7 +151,7 @@ void UserInterface::drawMessage()
     mvprintw(MESSAGE.row, MESSAGE.col, msg_.c_str());
 }
 
-Position UserInterface::positionFromBoardField(BoardField bf)
+Position UserInterface::positionFromBoardField(Chess::BoardField bf)
 {
     Position pos {
         27 - rankFromBoardField(bf) * 3,

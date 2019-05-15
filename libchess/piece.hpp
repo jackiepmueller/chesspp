@@ -147,6 +147,9 @@ struct PieceBase : private boost::noncopyable {
         identifier_ = id;
     }
 
+    virtual bool move(BoardField) = 0;
+    virtual bool move(Rank rank, File file) = 0;
+
 protected:
     BoardField board() const {
         return gameState_.board();
@@ -335,6 +338,14 @@ struct WhitePawn
     WhitePawn(BoardField startingPos, GameState & gameState)
         : Piece<White>(startingPos, gameState)
     { }
+
+    virtual bool move(BoardField bf) override {
+        return Pawn<WhitePawn>::move(bf);
+    }
+
+    virtual bool move(Rank rank, File file) override {
+        return Pawn<WhitePawn>::move(rank, file);
+    }
 };
 
 struct BlackPawn
@@ -344,6 +355,14 @@ struct BlackPawn
     BlackPawn(BoardField startingPos, GameState & gameState)
         : Piece<Black>(startingPos, gameState)
     { }
+
+    virtual bool move(BoardField bf) override {
+        return Pawn<BlackPawn>::move(bf);
+    }
+
+    virtual bool move(Rank rank, File file) override {
+        return Pawn<BlackPawn>::move(rank, file);
+    }
 };
 
 } // namespace Chess

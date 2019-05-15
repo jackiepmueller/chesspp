@@ -62,6 +62,14 @@ inline bool validPosition(BoardField bf)
     return (bf == 0) || (bf && !(bf & (bf - 1)));
 }
 
+inline BoardField positionFromString(std::string s)
+{
+    char file = s[0] - 65;
+    char rank = s[1] - 49;
+
+    return rankAndFileToBoardField(rank, file);
+}
+
 } // namespace Chess
 
 #endif

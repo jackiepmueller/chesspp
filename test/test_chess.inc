@@ -57,6 +57,12 @@ TEST(fileFromBoardField)
 }
 ENDTEST(fileFromBoardField)
 
+TEST(positionFromString)
+{
+    TEST_ASSERT(rankAndFileToBoardField(One, A) == positionFromString("A1"));
+}
+ENDTEST(positionFromString)
+
 TEST(pawnMovement)
 {
     GameContext gc;

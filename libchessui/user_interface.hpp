@@ -73,7 +73,7 @@ private:
     void drawCommand();
     void drawMessage();
 
-    Position positionFromBoardField(BoardField bf);
+    Position positionFromBoardField(Chess::BoardField bf);
 
     std::string cmd_;
     std::string msg_;
