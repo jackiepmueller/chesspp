@@ -9,6 +9,9 @@ static constexpr Position PROMPT(34, 1);
 static constexpr Position ENTRY(34, 3);
 static constexpr Position TOPFILES(3, 5);
 static constexpr Position BOTFILES(30, 5);
+static constexpr Position WHITE_TURN(32, 3);
+static constexpr Position BLACK_TURN(32, 8);
+static constexpr Position MESSAGE(32, 13);
 
 static void drawTitle()
 {
@@ -46,6 +49,14 @@ static void drawRanks()
     }
 }
 
+static void drawTurnIndicators(bool turn)
+{
+    mvprintw(32, 1, "W( ) B( ) : ");
+
+    auto pos = turn ? WHITE_TURN : BLACK_TURN;
+    mvprintw(pos.row, pos.col, "*");
+}
+
 UserInterface::UserInterface(GameContext & gc)
     : gc_(gc)
 {
@@ -56,9 +67,6 @@ UserInterface::UserInterface(GameContext & gc)
 
 void UserInterface::run()
 {
-//    redraw();
-//    gc_.wP1.move(Three, A);
-//    gc_.wP1.move(Four, A);
     initscr();
     //cbreak();             // Don't intercept ctrl keys
     //noecho();             // Don't echo keys
@@ -84,16 +92,21 @@ void UserInterface::redraw()
 {
     clear();
 
+    // static content
     drawTitle();
     drawPrompt();
     drawFiles();
     drawRanks();
+    drawTurnIndicators(gc_.gameState.turn());
+
+    // dynamic content
     drawCommand();
+    drawMessage();
 
     for (auto const * piece : gc_.gameState.pieces()) {
         (void)piece;
-        //std::cout << piece->identifier() << ": " << fileToString(piece->file()) << rankToString(piece->rank()) << std::endl;
-        // TODO: draw the piece
+        auto pos = positionFromBoardField(piece->pos());
+        mvprintw(pos.row, pos.col, "%c", piece->identifier());
     }
 
     move(ENTRY.row, ENTRY.col + cmd_.size());
@@ -102,6 +115,11 @@ void UserInterface::redraw()
 
 void UserInterface::runCommand()
 {
+    if (cmd_ == "test") {
+        gc_.wP1.move(Three, A);
+        gc_.bP3.move(Five, F);
+        msg_ = "the message";
+    }
     cmd_.clear();
 }
 
@@ -110,3 +128,17 @@ void UserInterface::drawCommand()
     mvprintw(ENTRY.row, ENTRY.col, cmd_.c_str());
 }
 
+void UserInterface::drawMessage()
+{
+    mvprintw(MESSAGE.row, MESSAGE.col, msg_.c_str());
+}
+
+Position UserInterface::positionFromBoardField(BoardField bf)
+{
+    Position pos {
+        27 - rankFromBoardField(bf) * 3,
+        5  + fileFromBoardField(bf) * 3
+    };
+
+    return pos;
+}

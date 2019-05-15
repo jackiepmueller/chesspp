@@ -38,10 +38,16 @@ struct GameState {
         return pieceMap_;
     }
 
+    // true = white, false = black
+    bool turn() const {
+        return turn_;
+    }
+
 private:
     PieceMap pieceMap_;
     PieceVector pieces_;
     BoardField board_ = 0;
+    bool turn_ = true;
 };
 
 } // namespace Chess

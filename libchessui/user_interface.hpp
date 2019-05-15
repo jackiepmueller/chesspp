@@ -7,8 +7,8 @@
 
 #include <string>
 
-//            012345678901234567890
-//   013456789111111111122222222223
+//             012345678901234567890
+//   0123456789111111111122222222223
 //  0                              
 //  1            Chess!            
 //  2                              
@@ -41,10 +41,17 @@
 // 29                              
 // 30    A  B  C  D  E  F  G  H    
 // 31                              
-// 32 W(*) B( ) xx message area xxxxxxxxxxxx
+// 32 W(*) B( ) : xx message area xxxxxxxxxxxx
 // 33                              
 // 34 >                            
 // 35                              
+
+// A1 : 27, 5
+// B1 : 27, 8
+// A2 : 24, 5
+//
+// rank to row: 27 - rank * 3
+// file to col: 5 + file * 3
 
 namespace Chess {
 namespace UI {
@@ -64,8 +71,12 @@ struct UserInterface {
 private:
     void runCommand();
     void drawCommand();
+    void drawMessage();
+
+    Position positionFromBoardField(BoardField bf);
 
     std::string cmd_;
+    std::string msg_;
     GameContext & gc_;
 };
 
