@@ -165,10 +165,10 @@ void UserInterface::drawMessage()
 
 Position UserInterface::positionFromBoardField(Chess::BoardField bf)
 {
-    Position pos {
+    Position pos (
         27 - rankFromBoardField(bf) * 3,
         5  + fileFromBoardField(bf) * 3
-    };
+    );
 
     return pos;
 }
