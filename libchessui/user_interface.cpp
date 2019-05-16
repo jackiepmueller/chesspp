@@ -15,6 +15,9 @@ static constexpr Position WHITE_TURN(32, 3);
 static constexpr Position BLACK_TURN(32, 8);
 static constexpr Position MESSAGE(32, 13);
 
+static constexpr int WHITE_PAIR = 1;
+static constexpr int BLACK_PAIR = 2;
+
 static void drawTitle()
 {
     mvprintw(TITLE.row, TITLE.col, "Chess!");
@@ -73,6 +76,13 @@ void UserInterface::run()
     //cbreak();             // Don't intercept ctrl keys
     //noecho();             // Don't echo keys
     keypad(stdscr, true); // enable F1, F2, arrow keys etc..
+    start_color();
+
+    // black on white for white pieces
+    init_pair(WHITE_PAIR, COLOR_BLACK, COLOR_WHITE);
+
+    // white on black for black pieces
+    init_pair(BLACK_PAIR, COLOR_WHITE, COLOR_BLACK);
 
     redraw();
 
@@ -106,9 +116,24 @@ void UserInterface::redraw()
     drawMessage();
 
     for (auto const * piece : gc_.gameState.pieces()) {
-        (void)piece;
+        if (!piece->alive()) continue;
+
+        if (piece->side() == Side::White) {
+            attron(COLOR_PAIR(WHITE_PAIR));
+        }
+        else {
+            attron(COLOR_PAIR(BLACK_PAIR));
+        }
+
         auto pos = positionFromBoardField(piece->pos());
         mvprintw(pos.row, pos.col, "%c", piece->identifier());
+
+        if (piece->side() == Side::White) {
+            attroff(COLOR_PAIR(WHITE_PAIR));
+        }
+        else {
+            attroff(COLOR_PAIR(BLACK_PAIR));
+        }
     }
 
     move(ENTRY.row, ENTRY.col + cmd_.size());

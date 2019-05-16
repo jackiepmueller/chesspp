@@ -150,7 +150,6 @@ struct PieceBase : private boost::noncopyable {
     virtual bool move(BoardField) = 0;
     virtual bool move(Rank rank, File file) = 0;
 
-protected:
     BoardField board() const {
         return gameState_.board();
     }
@@ -159,6 +158,15 @@ protected:
         return gameState_.board();
     }
 
+    PieceMap const & pieceMap() const {
+        return gameState_.pieceMap();
+    }
+
+    PieceMap & pieceMap() {
+        return gameState_.pieceMap();
+    }
+
+private:
     Side const side_;
     BoardField pos_; // never modify directly
     BoardField const startingPos_;
@@ -170,7 +178,12 @@ private:
     GameState & gameState_;
 };
 
-using TryResult = std::pair<bool, BoardField>;
+//using TryResult = std::pair<bool, BoardField>;
+struct TryResult {
+    bool valid    = false;
+    bool took     = false;
+    BoardField bf = 0;
+};
 
 template <typename SideType>
 struct Piece : PieceBase {
@@ -179,56 +192,15 @@ struct Piece : PieceBase {
     { 
     }
 
-    BoardField forward(Rank n);
-    BoardField back(Rank n);
-    BoardField left(File n);
-    BoardField right(File n);
-
     TryResult tryForward(Rank n, bool canTake = true);
     TryResult tryBack(Rank n, bool canTake = true);
-    TryResult tryLeft(File n, bool canTake = true);
     TryResult tryRight(File n, bool canTake = true);
-
-    BoardField diagonal(uint8_t n, Diagonal diagonal) {
-        switch (diagonal) {
-        case Diagonal::ForwardLeft:
-            forward(n);
-            left(n);
-            break;
-        case Diagonal::ForwardRight:
-            forward(n);
-            right(n);
-            break;
-        case Diagonal::BackLeft:
-            back(n);
-            left(n);
-            break;
-        case Diagonal::BackRight:
-            back(n);
-            right(n);
-            break;
-        }
-        return pos();
-    }
+    TryResult tryLeft(File n, bool canTake = true);
 };
 
 template <typename SideType>
-BoardField Piece<SideType>::forward(Rank n) {
-    assert(n <= 7);
-    pos_ = SideType::forwardShift(pos_, n * 8);
-    return pos_;
-}
-
-template <typename SideType>
-BoardField Piece<SideType>::back(Rank n) {
-    assert(n <= 7);
-    pos_ = SideType::backShift(pos_, n * 8);
-    return pos_;
-}
-
-template <typename SideType>
 TryResult Piece<SideType>::tryForward(Rank n, bool canTake) {
-    TryResult res { false, 0 };
+    TryResult res;
     if (n > 7) {
         return res;
     }
@@ -236,8 +208,8 @@ TryResult Piece<SideType>::tryForward(Rank n, bool canTake) {
     // sweep up to just before the destination
     BoardField tmp;
     for (Rank i = 1; i <= n; ++i) {
-        tmp = SideType::forwardShift(pos_, i * 8);
-        if (!SideType::forwardCompare(tmp, pos_)) {
+        tmp = SideType::forwardShift(pos(), i * 8);
+        if (!SideType::forwardCompare(tmp, pos())) {
             return res;
         }
         if (tmp & this->board()) {
@@ -245,18 +217,23 @@ TryResult Piece<SideType>::tryForward(Rank n, bool canTake) {
                 return res;
             }
             else {
-                // TODO, we can take but we have to check if the piece being taken is on the other side
+                auto piece = this->pieceMap()[tmp];
+                assert(piece); // must be true since we determined a collision above
+                if (piece->side() == this->side()) {
+                    return res;
+                }
+                res.took = true;
             }
         }
     }
-    res.first = true;
-    res.second = tmp;
+    res.valid = true;
+    res.bf = tmp;
     return res;
 }
 
 template <typename SideType>
 TryResult Piece<SideType>::tryBack(Rank n, bool canTake) {
-    TryResult res { false, 0 };
+    TryResult res;
     if (n > 7) {
         return res;
     }
@@ -264,8 +241,8 @@ TryResult Piece<SideType>::tryBack(Rank n, bool canTake) {
     // sweep up to just before the destination
     BoardField tmp;
     for (Rank i = 1; i <= n; ++i) {
-        tmp = SideType::backShift(pos_, i * 8);
-        if (!SideType::backCompare(tmp, pos_)) {
+        tmp = SideType::backShift(pos(), i * 8);
+        if (!SideType::backCompare(tmp, pos())) {
             return res;
         }
         if (tmp & this->board()) {
@@ -273,12 +250,83 @@ TryResult Piece<SideType>::tryBack(Rank n, bool canTake) {
                 return res;
             }
             else {
-                // TODO, we can take but we have to check if the piece being taken is on the other side
+                auto piece = this->pieceMap()[tmp];
+                assert(piece); // must be true since we determined a collision above
+                if (piece->side() == this->side()) {
+                    return res;
+                }
+                res.took = true;
             }
         }
     }
-    res.first = true;
-    res.second = tmp;
+    res.valid = true;
+    res.bf = tmp;
+    return res;
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryRight(File n, bool canTake) {
+    TryResult res;
+    if (n > 7) {
+        return res;
+    }
+
+    // sweep up to just before the destination
+    BoardField tmp;
+    for (File i = 1; i <= n; ++i) {
+        tmp = SideType::forwardShift(pos(), i);
+        if (!SideType::forwardCompare(tmp, pos())) {
+            return res;
+        }
+        if (tmp & this->board()) {
+            if (i != n || !canTake) {
+                return res;
+            }
+            else {
+                auto piece = this->pieceMap()[tmp];
+                assert(piece); // must be true since we determined a collision above
+                if (piece->side() == this->side()) {
+                    return res;
+                }
+                res.took = true;
+            }
+        }
+    }
+    res.valid = true;
+    res.bf = tmp;
+    return res;
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryLeft(File n, bool canTake) {
+    TryResult res;
+    if (n > 7) {
+        return res;
+    }
+
+    // sweep up to just before the destination
+    BoardField tmp;
+    for (File i = 1; i <= n; ++i) {
+        tmp = SideType::backShift(pos(), i);
+        if (!SideType::backCompare(tmp, pos())) {
+            return res;
+        }
+        if (tmp & this->board()) {
+            if (i != n || !canTake) {
+                return res;
+            }
+            else {
+                auto piece = this->pieceMap()[tmp];
+                assert(piece); // must be true since we determined a collision above
+                if (piece->side() == this->side()) {
+                    return res;
+                }
+                res.took = true;
+            }
+        }
+    }
+    res.valid = true;
+    res.bf = tmp;
     return res;
 }
 
@@ -305,10 +353,10 @@ struct Pawn : FirstMoveConcept {
 
         BoardField bf = 0;
         auto res = derived.tryForward(1, /* canTake */false);
-        if (res.first) bf |= res.second;
+        if (res.valid) bf |= res.bf;
         if (!derived.moved()) {
             res = derived.tryForward(2, /* canTake */false);
-            if (res.first) bf |= res.second;
+            if (res.valid) bf |= res.bf;
         }
         // TODO check for diagonal attacks
         return bf;
@@ -362,6 +410,120 @@ struct BlackPawn
 
     virtual bool move(Rank rank, File file) override {
         return Pawn<BlackPawn>::move(rank, file);
+    }
+};
+
+template <typename Derived>
+struct Rook : NoFirstMoveConcept {
+    Rook() {
+        auto & derived = static_cast<Derived &>(*this);
+        derived.setIdentifier('R');
+    }
+
+    BoardField validMoves() {
+        auto & derived = static_cast<Derived &>(*this);
+
+        BoardField bf = 0;
+
+        // forward
+        {
+            int dist = 0;
+            TryResult res;
+            do {
+                ++dist;
+                res = derived.tryForward(dist, /* canTake */true);
+                if (res.valid) bf |= res.bf;
+            } while (res.valid && !res.took); // stop if we would take the piece
+        }
+
+        // backward
+        {
+            int dist = 0;
+            TryResult res;
+            do {
+                ++dist;
+                res = derived.tryBack(dist, /* canTake */true);
+                if (res.valid) bf |= res.bf;
+            } while (res.valid && !res.took); // stop if we would take the piece
+        }
+
+        // left
+        {
+            int dist = 0;
+            TryResult res;
+            do {
+                ++dist;
+                res = derived.tryLeft(dist, /* canTake */true);
+                if (res.valid) bf |= res.bf;
+            } while (res.valid && !res.took); // stop if we would take the piece
+        }
+
+        // right
+        {
+            int dist = 0;
+            TryResult res;
+            do {
+                ++dist;
+                res = derived.tryRight(dist, /* canTake */true);
+                if (res.valid) bf |= res.bf;
+            } while (res.valid && !res.took); // stop if we would take the piece
+        }
+
+        return bf;
+    }
+
+    bool move(BoardField pos) {
+        assert(validPosition(pos));
+        auto const validMoves = this->validMoves();
+        auto & derived = static_cast<Derived &>(*this);
+        if (pos & validMoves) {
+            auto & pieceMap = derived.pieceMap();
+            auto piece = pieceMap[pos];
+            if (piece) {
+                piece->setPos(0);
+            }
+            derived.setPos(pos);
+            return true;
+        }
+        return false;
+    }
+
+    bool move(Rank rank, File file) {
+        return move(rankAndFileToBoardField(rank, file));
+    }
+};
+
+struct WhiteRook
+    : Piece<White>
+    , Rook<WhiteRook>
+{
+    WhiteRook(BoardField startingPos, GameState & gameState)
+        : Piece<White>(startingPos, gameState)
+    { }
+
+    virtual bool move(BoardField bf) override {
+        return Rook<WhiteRook>::move(bf);
+    }
+
+    virtual bool move(Rank rank, File file) override {
+        return Rook<WhiteRook>::move(rank, file);
+    }
+};
+
+struct BlackRook
+    : Piece<Black>
+    , Rook<BlackRook>
+{
+    BlackRook(BoardField startingPos, GameState & gameState)
+        : Piece<Black>(startingPos, gameState)
+    { }
+
+    virtual bool move(BoardField bf) override {
+        return Rook<BlackRook>::move(bf);
+    }
+
+    virtual bool move(Rank rank, File file) override {
+        return Rook<BlackRook>::move(rank, file);
     }
 };
 

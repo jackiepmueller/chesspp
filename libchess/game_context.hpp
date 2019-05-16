@@ -20,6 +20,9 @@ struct GameContext {
     WhitePawn wP7;
     WhitePawn wP8;
 
+    WhiteRook wR1;
+    WhiteRook wR2;
+
     BlackPawn bP1;
     BlackPawn bP2;
     BlackPawn bP3;
@@ -28,6 +31,9 @@ struct GameContext {
     BlackPawn bP6;
     BlackPawn bP7;
     BlackPawn bP8;
+
+    BlackRook bR1;
+    BlackRook bR2;
 
     GameContext() 
         : wP1(rankAndFileToBoardField(Two, A), gameState)
@@ -39,6 +45,9 @@ struct GameContext {
         , wP7(rankAndFileToBoardField(Two, G), gameState)
         , wP8(rankAndFileToBoardField(Two, H), gameState)
 
+        , wR1(rankAndFileToBoardField(One, A), gameState)
+        , wR2(rankAndFileToBoardField(One, H), gameState)
+
         , bP1(rankAndFileToBoardField(Seven, H), gameState)
         , bP2(rankAndFileToBoardField(Seven, G), gameState)
         , bP3(rankAndFileToBoardField(Seven, F), gameState)
@@ -47,6 +56,9 @@ struct GameContext {
         , bP6(rankAndFileToBoardField(Seven, C), gameState)
         , bP7(rankAndFileToBoardField(Seven, B), gameState)
         , bP8(rankAndFileToBoardField(Seven, A), gameState)
+
+        , bR1(rankAndFileToBoardField(Eight, H), gameState)
+        , bR2(rankAndFileToBoardField(Eight, A), gameState)
     { }
 
 };

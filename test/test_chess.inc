@@ -31,6 +31,12 @@ TEST(toFromOrdinal)
 }
 ENDTEST(toFromOrdinal)
 
+TEST(boardFieldToOrdinal)
+{
+    TEST_ASSERT(boardFieldToOrdinal(1) == 0);
+}
+ENDTEST(boardFieldToOrdinal)
+
 TEST(rankFromBoardField)
 {
     {
@@ -92,6 +98,9 @@ TEST(pawnMovement)
 
     TEST_ASSERT(wP1.move(Seven, A));
     TEST_ASSERT(wP1.pos() == rankAndFileToBoardField(Seven, A));
+
+    // Move the black rook out of the way
+    gc.bR2.setPos(0);
 
     TEST_ASSERT(wP1.move(Eight, A));
     TEST_ASSERT(wP1.pos() == rankAndFileToBoardField(Eight, A));

@@ -1,6 +1,7 @@
 #ifndef BIT_MANIPULATION_HPP
 #define BIT_MANIPULATION_HPP
 
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 
@@ -28,6 +29,12 @@ static constexpr File F = 5;
 static constexpr File G = 6;
 static constexpr File H = 7;
 
+// 1 and only 1 bit set
+inline bool validPosition(BoardField bf)
+{
+    return (bf == 0) || (bf && !(bf & (bf - 1)));
+}
+
 inline std::size_t rankAndFileToOrdinal(Rank rank, File file)
 {
     return rank * 8 + file;
@@ -40,6 +47,12 @@ inline BoardField rankAndFileToBoardField(Rank rank, File file)
 
 inline std::size_t boardFieldToOrdinal(BoardField bf)
 {
+    assert(bf);
+    if (!bf) throw std::runtime_error("error trying to take the ordinal of a dead board");
+
+    assert(validPosition(bf));
+    if (!validPosition(bf)) throw std::runtime_error("error trying to take the ordinal of an invald position");
+
     std::size_t ordinal = 0;
     while (bf = bf >> uint64_t(1), bf) ++ordinal;
     return ordinal;
@@ -57,15 +70,10 @@ inline File fileFromBoardField(BoardField bf)
     return ord % 8;
 }
 
-inline bool validPosition(BoardField bf)
-{
-    return (bf == 0) || (bf && !(bf & (bf - 1)));
-}
-
 inline BoardField positionFromString(std::string s)
 {
-    char file = s[0] - 65;
-    char rank = s[1] - 49;
+    char file = std::toupper(s[0]) - 65;
+    char rank = std::toupper(s[1]) - 49;
 
     return rankAndFileToBoardField(rank, file);
 }
