@@ -14,6 +14,10 @@ namespace Chess {
 
 using StateChangeEvent = std::function<void()>;
 
+namespace Bool {
+    static constexpr bool CanTake = true;
+} // namespace Bool
+
 enum class Side {
     White,
     Black
@@ -78,42 +82,10 @@ enum class Diagonal : uint8_t {
 };
 
 struct PieceBase : private boost::noncopyable {
-    PieceBase(Side side, BoardField startingPos, GameState & gameState)
-        : side_(side)
-        , pos_(0)
-        , startingPos_(startingPos)
-        , gameState_(gameState)
-    { 
-        bool const occupied = (gameState_.board() & pos());
-        assert(!occupied);
-        if (occupied) {
-            throw std::runtime_error("error trying to place piece on occupied spot");
-        }
+    inline PieceBase(Side side, BoardField startingPos, GameState & gameState);
 
-        setPos(startingPos);
-
-        gameState_.board() |= pos();
-        gameState_.pieces().push_back(this);
-    }
-
-    void setPos(Rank rank, File file) {
-        setPos(rankAndFileToBoardField(rank, file));
-    }
-
-    void setPos(BoardField pos) {
-        assert(validPosition(pos));
-        auto & board = gameState_.board();
-        auto & pieceMap = gameState_.pieceMap();
-
-        pieceMap[pos_] = nullptr;
-        board &= ~pos_;
-        board |= pos;
-        pos_ = pos;
-
-        if (alive()) pieceMap[pos_] = this;
-
-        if (onSetPos_) onSetPos_();
-    }
+    inline void setPos(Rank rank, File file);
+    inline void setPos(BoardField pos);
 
     BoardField pos() const {
         return pos_;
@@ -178,7 +150,6 @@ private:
     GameState & gameState_;
 };
 
-//using TryResult = std::pair<bool, BoardField>;
 struct TryResult {
     bool valid    = false;
     bool took     = false;
@@ -192,153 +163,17 @@ struct Piece : PieceBase {
     { 
     }
 
-    TryResult tryForward(Rank n, bool canTake = true);
-    TryResult tryBack(Rank n, bool canTake = true);
-    TryResult tryRight(File n, bool canTake = true);
-    TryResult tryLeft(File n, bool canTake = true);
+    TryResult tryForward(Rank n, bool canTake = Bool::CanTake);
+    TryResult tryBack   (Rank n, bool canTake = Bool::CanTake);
+    TryResult tryRight  (File n, bool canTake = Bool::CanTake);
+    TryResult tryLeft   (File n, bool canTake = Bool::CanTake);
 };
-
-template <typename SideType>
-TryResult Piece<SideType>::tryForward(Rank n, bool canTake) {
-    TryResult res;
-    if (n > 7) {
-        return res;
-    }
-
-    // sweep up to just before the destination
-    BoardField tmp;
-    for (Rank i = 1; i <= n; ++i) {
-        tmp = SideType::forwardShift(pos(), i * 8);
-        if (!SideType::forwardCompare(tmp, pos())) {
-            return res;
-        }
-        if (tmp & this->board()) {
-            if (i != n || !canTake) {
-                return res;
-            }
-            else {
-                auto piece = this->pieceMap()[tmp];
-                assert(piece); // must be true since we determined a collision above
-                if (piece->side() == this->side()) {
-                    return res;
-                }
-                res.took = true;
-            }
-        }
-    }
-    res.valid = true;
-    res.bf = tmp;
-    return res;
-}
-
-template <typename SideType>
-TryResult Piece<SideType>::tryBack(Rank n, bool canTake) {
-    TryResult res;
-    if (n > 7) {
-        return res;
-    }
-
-    // sweep up to just before the destination
-    BoardField tmp;
-    for (Rank i = 1; i <= n; ++i) {
-        tmp = SideType::backShift(pos(), i * 8);
-        if (!SideType::backCompare(tmp, pos())) {
-            return res;
-        }
-        if (tmp & this->board()) {
-            if (i != n || !canTake) {
-                return res;
-            }
-            else {
-                auto piece = this->pieceMap()[tmp];
-                assert(piece); // must be true since we determined a collision above
-                if (piece->side() == this->side()) {
-                    return res;
-                }
-                res.took = true;
-            }
-        }
-    }
-    res.valid = true;
-    res.bf = tmp;
-    return res;
-}
-
-template <typename SideType>
-TryResult Piece<SideType>::tryRight(File n, bool canTake) {
-    TryResult res;
-    if (n > 7) {
-        return res;
-    }
-
-    // sweep up to just before the destination
-    BoardField tmp;
-    for (File i = 1; i <= n; ++i) {
-        tmp = SideType::forwardShift(pos(), i);
-        if (!SideType::forwardCompare(tmp, pos())) {
-            return res;
-        }
-        if (tmp & this->board()) {
-            if (i != n || !canTake) {
-                return res;
-            }
-            else {
-                auto piece = this->pieceMap()[tmp];
-                assert(piece); // must be true since we determined a collision above
-                if (piece->side() == this->side()) {
-                    return res;
-                }
-                res.took = true;
-            }
-        }
-    }
-    res.valid = true;
-    res.bf = tmp;
-    return res;
-}
-
-template <typename SideType>
-TryResult Piece<SideType>::tryLeft(File n, bool canTake) {
-    TryResult res;
-    if (n > 7) {
-        return res;
-    }
-
-    // sweep up to just before the destination
-    BoardField tmp;
-    for (File i = 1; i <= n; ++i) {
-        tmp = SideType::backShift(pos(), i);
-        if (!SideType::backCompare(tmp, pos())) {
-            return res;
-        }
-        if (tmp & this->board()) {
-            if (i != n || !canTake) {
-                return res;
-            }
-            else {
-                auto piece = this->pieceMap()[tmp];
-                assert(piece); // must be true since we determined a collision above
-                if (piece->side() == this->side()) {
-                    return res;
-                }
-                res.took = true;
-            }
-        }
-    }
-    res.valid = true;
-    res.bf = tmp;
-    return res;
-}
 
 struct FirstMoveConcept {
-    bool moved() const { return moved_; }
-    void setMoved()    { moved_ = true; }
+    bool isFirstMove() const { return !moved_; }
+    void setMoved() { assert(!moved_); moved_ = true; }
 private:
     bool moved_ = false;
-};
-
-struct NoFirstMoveConcept {
-    static constexpr bool moved() { return true; }
 };
 
 template <typename Derived>
@@ -352,10 +187,10 @@ struct Pawn : FirstMoveConcept {
         auto & derived = static_cast<Derived &>(*this);
 
         BoardField bf = 0;
-        auto res = derived.tryForward(1, /* canTake */false);
+        auto res = derived.tryForward(1, !Bool::CanTake);
         if (res.valid) bf |= res.bf;
-        if (!derived.moved()) {
-            res = derived.tryForward(2, /* canTake */false);
+        if (!derived.isFirstMove()) {
+            res = derived.tryForward(2, !Bool::CanTake);
             if (res.valid) bf |= res.bf;
         }
         // TODO check for diagonal attacks
@@ -368,7 +203,9 @@ struct Pawn : FirstMoveConcept {
         auto & derived = static_cast<Derived &>(*this);
         if (pos & validMoves) {
             derived.setPos(pos);
-            derived.setMoved();
+            if (derived.isFirstMove()) {
+                derived.setMoved();
+            }
             return true;
         }
         return false;
@@ -414,7 +251,7 @@ struct BlackPawn
 };
 
 template <typename Derived>
-struct Rook : NoFirstMoveConcept {
+struct Rook : FirstMoveConcept {
     Rook() {
         auto & derived = static_cast<Derived &>(*this);
         derived.setIdentifier('R');
@@ -431,7 +268,7 @@ struct Rook : NoFirstMoveConcept {
             TryResult res;
             do {
                 ++dist;
-                res = derived.tryForward(dist, /* canTake */true);
+                res = derived.tryForward(dist, Bool::CanTake);
                 if (res.valid) bf |= res.bf;
             } while (res.valid && !res.took); // stop if we would take the piece
         }
@@ -442,7 +279,7 @@ struct Rook : NoFirstMoveConcept {
             TryResult res;
             do {
                 ++dist;
-                res = derived.tryBack(dist, /* canTake */true);
+                res = derived.tryBack(dist, Bool::CanTake);
                 if (res.valid) bf |= res.bf;
             } while (res.valid && !res.took); // stop if we would take the piece
         }
@@ -453,7 +290,7 @@ struct Rook : NoFirstMoveConcept {
             TryResult res;
             do {
                 ++dist;
-                res = derived.tryLeft(dist, /* canTake */true);
+                res = derived.tryLeft(dist, Bool::CanTake);
                 if (res.valid) bf |= res.bf;
             } while (res.valid && !res.took); // stop if we would take the piece
         }
@@ -464,7 +301,7 @@ struct Rook : NoFirstMoveConcept {
             TryResult res;
             do {
                 ++dist;
-                res = derived.tryRight(dist, /* canTake */true);
+                res = derived.tryRight(dist, Bool::CanTake);
                 if (res.valid) bf |= res.bf;
             } while (res.valid && !res.took); // stop if we would take the piece
         }
@@ -483,6 +320,9 @@ struct Rook : NoFirstMoveConcept {
                 piece->setPos(0);
             }
             derived.setPos(pos);
+            if (derived.isFirstMove()) {
+                derived.setMoved();
+            }
             return true;
         }
         return false;
@@ -526,6 +366,8 @@ struct BlackRook
         return Rook<BlackRook>::move(rank, file);
     }
 };
+
+#include "piece_inline.hpp"
 
 } // namespace Chess
 
