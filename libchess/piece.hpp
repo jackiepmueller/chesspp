@@ -16,6 +16,8 @@ using StateChangeEvent = std::function<void()>;
 
 namespace Bool {
     static constexpr bool CanTake = true;
+    static constexpr bool Forward = true;
+    static constexpr bool Back    = false;
 } // namespace Bool
 
 enum class Side {
@@ -161,6 +163,15 @@ struct Piece : PieceBase {
     inline TryResult tryBack   (Rank n, bool canTake = Bool::CanTake);
     inline TryResult tryRight  (File n, bool canTake = Bool::CanTake);
     inline TryResult tryLeft   (File n, bool canTake = Bool::CanTake);
+
+    inline TryResult tryForwardLeft (Diag n, bool canTake = Bool::CanTake);
+    inline TryResult tryForwardRight(Diag n, bool canTake = Bool::CanTake);
+    inline TryResult tryBackLeft    (Diag n, bool canTake = Bool::CanTake);
+    inline TryResult tryBackRight   (Diag n, bool canTake = Bool::CanTake);
+
+private:
+    template <uint8_t ShiftDistance, bool Forward>
+    inline TryResult impl(uint8_t n, bool canTake);
 };
 
 struct FirstMoveConcept {

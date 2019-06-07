@@ -46,40 +46,55 @@ Piece<SideType>::Piece(BoardField startingPos, GameState & gameState)
 template <typename SideType>
 TryResult Piece<SideType>::tryForward(Rank n, bool canTake)
 {
-    TryResult res;
-    if (n > 7) {
-        return res;
-    }
-
-    // sweep up to just before the destination
-    BoardField tmp;
-    for (Rank i = 1; i <= n; ++i) {
-        tmp = SideType::forwardShift(pos(), i * 8);
-        if (!SideType::forwardCompare(tmp, pos())) {
-            return res;
-        }
-        if (tmp & this->board()) {
-            if (i != n || !canTake) {
-                return res;
-            }
-            else {
-                auto piece = this->pieceMap()[tmp];
-                assert(piece); // must be true since we determined a collision above
-                if (piece->side() == this->side()) {
-                    return res;
-                }
-                res.took = true;
-            }
-        }
-    }
-    res.valid = true;
-    res.bf = tmp;
-    return res;
+    return impl<8, Bool::Forward>(n, canTake);
 }
 
 template <typename SideType>
 TryResult Piece<SideType>::tryBack(Rank n, bool canTake)
 {
+    return impl<8, Bool::Back>(n, canTake);
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryRight(File n, bool canTake)
+{
+    return impl<1, Bool::Forward>(n, canTake);
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryLeft(File n, bool canTake)
+{
+    return impl<1, Bool::Back>(n, canTake);
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryForwardLeft(Diag n, bool canTake)
+{
+    return impl<7, Bool::Forward>(n, canTake);
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryForwardRight(Diag n, bool canTake)
+{
+    return impl<9, Bool::Forward>(n, canTake);
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryBackLeft(Diag n, bool canTake)
+{
+    return impl<9, Bool::Back>(n, canTake);
+}
+
+template <typename SideType>
+TryResult Piece<SideType>::tryBackRight(Diag n, bool canTake)
+{
+    return impl<7, Bool::Back>(n, canTake);
+}
+
+template <typename SideType>
+template <uint8_t ShiftDistance, bool Forward>
+TryResult Piece<SideType>::impl(uint8_t n, bool canTake)
+{
     TryResult res;
     if (n > 7) {
         return res;
@@ -88,76 +103,12 @@ TryResult Piece<SideType>::tryBack(Rank n, bool canTake)
     // sweep up to just before the destination
     BoardField tmp;
     for (Rank i = 1; i <= n; ++i) {
-        tmp = SideType::backShift(pos(), i * 8);
-        if (!SideType::backCompare(tmp, pos())) {
-            return res;
-        }
-        if (tmp & this->board()) {
-            if (i != n || !canTake) {
-                return res;
-            }
-            else {
-                auto piece = this->pieceMap()[tmp];
-                assert(piece); // must be true since we determined a collision above
-                if (piece->side() == this->side()) {
-                    return res;
-                }
-                res.took = true;
-            }
-        }
-    }
-    res.valid = true;
-    res.bf = tmp;
-    return res;
-}
+        tmp = Forward ? SideType::forwardShift(pos(), i * ShiftDistance)
+                      : SideType::   backShift(pos(), i * ShiftDistance);
 
-template <typename SideType>
-TryResult Piece<SideType>::tryRight(File n, bool canTake)
-{
-    TryResult res;
-    if (n > 7) {
-        return res;
-    }
-
-    // sweep up to just before the destination
-    BoardField tmp;
-    for (File i = 1; i <= n; ++i) {
-        tmp = SideType::forwardShift(pos(), i);
-        if (!SideType::forwardCompare(tmp, pos())) {
-            return res;
-        }
-        if (tmp & this->board()) {
-            if (i != n || !canTake) {
-                return res;
-            }
-            else {
-                auto piece = this->pieceMap()[tmp];
-                assert(piece); // must be true since we determined a collision above
-                if (piece->side() == this->side()) {
-                    return res;
-                }
-                res.took = true;
-            }
-        }
-    }
-    res.valid = true;
-    res.bf = tmp;
-    return res;
-}
-
-template <typename SideType>
-TryResult Piece<SideType>::tryLeft(File n, bool canTake)
-{
-    TryResult res;
-    if (n > 7) {
-        return res;
-    }
-
-    // sweep up to just before the destination
-    BoardField tmp;
-    for (File i = 1; i <= n; ++i) {
-        tmp = SideType::backShift(pos(), i);
-        if (!SideType::backCompare(tmp, pos())) {
+        bool const comp = Forward ? SideType::forwardCompare(tmp, pos())
+                                  : SideType::   backCompare(tmp, pos());
+        if (!comp) {
             return res;
         }
         if (tmp & this->board()) {

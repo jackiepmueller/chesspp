@@ -12,46 +12,46 @@ BoardField Bishop<Derived>::validMoves()
 
     BoardField bf = 0;
 
-    // forward
+    // forward left
     {
         int dist = 0;
         TryResult res;
         do {
             ++dist;
-            res = derived.tryForward(dist, Bool::CanTake);
+            res = derived.tryForwardLeft(dist, Bool::CanTake);
             if (res.valid) bf |= res.bf;
         } while (res.valid && !res.took); // stop if we would take the piece
     }
 
-    // backward
+    // forward right
     {
         int dist = 0;
         TryResult res;
         do {
             ++dist;
-            res = derived.tryBack(dist, Bool::CanTake);
+            res = derived.tryForwardRight(dist, Bool::CanTake);
             if (res.valid) bf |= res.bf;
         } while (res.valid && !res.took); // stop if we would take the piece
     }
 
-    // left
+    // back left
     {
         int dist = 0;
         TryResult res;
         do {
             ++dist;
-            res = derived.tryLeft(dist, Bool::CanTake);
+            res = derived.tryBackLeft(dist, Bool::CanTake);
             if (res.valid) bf |= res.bf;
         } while (res.valid && !res.took); // stop if we would take the piece
     }
 
-    // right
+    // back right
     {
         int dist = 0;
         TryResult res;
         do {
             ++dist;
-            res = derived.tryRight(dist, Bool::CanTake);
+            res = derived.tryBackRight(dist, Bool::CanTake);
             if (res.valid) bf |= res.bf;
         } while (res.valid && !res.took); // stop if we would take the piece
     }

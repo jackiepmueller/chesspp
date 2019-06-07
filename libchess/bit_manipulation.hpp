@@ -10,6 +10,7 @@ namespace Chess {
 using BoardField = uint64_t;
 using Rank = uint8_t;
 using File = uint8_t;
+using Diag = uint8_t;
 
 static constexpr Rank One   = 0;
 static constexpr Rank Two   = 1;
