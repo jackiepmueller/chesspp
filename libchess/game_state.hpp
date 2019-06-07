@@ -8,6 +8,15 @@
 
 namespace Chess {
 
+enum class Side {
+    White,
+    Black
+};
+
+inline Side otherSide(Side side) {
+    return side == Side::White ? Side::Black : Side::White;
+}
+
 struct PieceBase;
 
 using PieceMap = std::unordered_map<BoardField, PieceBase *>;
@@ -38,16 +47,24 @@ struct GameState {
         return pieceMap_;
     }
 
-    // true = white, false = black
-    bool turn() const {
+    Side turn() const {
         return turn_;
     }
+
+    enum class Result {
+        Success,
+        InvalidMove,
+        WrongSide,
+        NoPiece
+    };
+
+    Result move(BoardField from, BoardField to);
 
 private:
     PieceMap pieceMap_;
     PieceVector pieces_;
     BoardField board_ = 0;
-    bool turn_ = true;
+    Side turn_ = Side::White;
 };
 
 } // namespace Chess

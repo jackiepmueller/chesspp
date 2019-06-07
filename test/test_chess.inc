@@ -127,6 +127,22 @@ TEST(pawnMovement)
 }
 ENDTEST(pawnMovement)
 
+TEST(pawnAttack)
+{
+    GameContext gc;
+
+    auto & wP4 = gc.wP4;
+    auto & bP6 = gc.bP6;
+
+    TEST_ASSERT(wP4.move(Four, D));
+    TEST_ASSERT(bP6.move(Five, C));
+
+    TEST_ASSERT(wP4.move(Five, C));
+    TEST_ASSERT(wP4.pos() == rankAndFileToBoardField(Five, C));
+    TEST_ASSERT(!bP6.alive());
+}
+ENDTEST(pawnAttack)
+
 TEST(side)
 {
     GameContext gc;

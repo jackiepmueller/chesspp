@@ -1,9 +1,11 @@
 #include "user_interface.hpp"
+#include "game_state.hpp"
 
 #include <boost/algorithm/string.hpp>
 
 #include <functional>
 
+using namespace Chess;
 using namespace Chess::UI;
 
 static constexpr Position TITLE(1, 13);
@@ -54,11 +56,11 @@ static void drawRanks()
     }
 }
 
-static void drawTurnIndicators(bool turn)
+static void drawTurnIndicators(Side turn)
 {
     mvprintw(32, 1, "W( ) B( ) : ");
 
-    auto pos = turn ? WHITE_TURN : BLACK_TURN;
+    auto pos = turn == Side::White ? WHITE_TURN : BLACK_TURN;
     mvprintw(pos.row, pos.col, "*");
 }
 
@@ -142,36 +144,31 @@ void UserInterface::redraw()
 
 void UserInterface::runCommand()
 {
-    if (cmd_ == "test") {
-        //gc_.wP1.move(Three, A);
-        //gc_.bP3.move(Five, F);
-        msg_ = "the message";
+    std::vector<std::string> tokens;
+    boost::split(tokens, cmd_, boost::is_any_of(" "));
+
+    if (tokens.size() != 2) {
+        msg_ = "Invalid number of params";
+        goto End;
     }
-    else {
-        std::vector<std::string> tokens;
-        boost::split(tokens, cmd_, boost::is_any_of(" "));
 
-        if (tokens.size() != 2) {
-            msg_ = "Invalid number of params";
-            goto End;
-        }
+    auto from = positionFromString(tokens[0]);
+    auto to   = positionFromString(tokens[1]);
 
-        auto from = positionFromString(tokens[0]);
-        auto to   = positionFromString(tokens[1]);
-
-        auto & pieceMap = gc_.gameState.pieceMap();
-        auto piece = pieceMap[from];
-        if (piece) {
-            if (!piece->move(to)) {
-                msg_ = "Couldn't move to " + tokens[1];
-            }
-            else {
-                msg_ = "Move " + tokens[0] + " to " + tokens[1];
-            }
-        }
-        else {
-            msg_ = "No piece at " + tokens[0];
-        }
+    auto result = gc_.gameState.move(from, to);
+    switch (result) {
+    case GameState::Result::Success:
+        msg_ = "Move " + tokens[0] + " to " + tokens[1];
+        break;
+    case GameState::Result::WrongSide:
+        msg_ = "Wrong side";
+        break;
+    case GameState::Result::InvalidMove:
+        msg_ = "Couldn't move to " + tokens[1];
+        break;
+    case GameState::Result::NoPiece:
+        msg_ = "No piece at " + tokens[0];
+        break;
     }
 
 End:
@@ -188,7 +185,7 @@ void UserInterface::drawMessage()
     mvprintw(MESSAGE.row, MESSAGE.col, msg_.c_str());
 }
 
-Position UserInterface::positionFromBoardField(Chess::BoardField bf)
+Position UserInterface::positionFromBoardField(BoardField bf)
 {
     Position pos (
         27 - rankFromBoardField(bf) * 3,

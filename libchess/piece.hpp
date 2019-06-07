@@ -20,11 +20,6 @@ namespace Bool {
     static constexpr bool Back    = false;
 } // namespace Bool
 
-enum class Side {
-    White,
-    Black
-};
-
 struct Black;
 
 struct White {
