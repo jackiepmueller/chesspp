@@ -12,49 +12,10 @@ BoardField Rook<Derived>::validMoves()
 
     BoardField bf = 0;
 
-    // forward
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryForward(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
-
-    // backward
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryBack(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
-
-    // left
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryLeft(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
-
-    // right
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryRight(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
+    derived.sweep(bf, std::bind(&Derived::tryForward,      &derived, std::placeholders::_1, Bool::CanTake));
+    derived.sweep(bf, std::bind(&Derived::tryBack,         &derived, std::placeholders::_1, Bool::CanTake));
+    derived.sweep(bf, std::bind(&Derived::tryLeft,         &derived, std::placeholders::_1, Bool::CanTake));
+    derived.sweep(bf, std::bind(&Derived::tryRight,        &derived, std::placeholders::_1, Bool::CanTake));
 
     return bf;
 }

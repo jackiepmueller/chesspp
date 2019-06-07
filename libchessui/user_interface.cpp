@@ -74,32 +74,45 @@ UserInterface::UserInterface(GameContext & gc)
 
 void UserInterface::run()
 {
-    initscr();
-    //cbreak();             // Don't intercept ctrl keys
-    //noecho();             // Don't echo keys
-    keypad(stdscr, true); // enable F1, F2, arrow keys etc..
-    start_color();
+    try {
+        initscr();
+        //cbreak();             // Don't intercept ctrl keys
+        noecho();             // Don't echo keys
+        keypad(stdscr, true); // enable F1, F2, arrow keys etc..
+        start_color();
 
-    // black on white for white pieces
-    init_pair(WHITE_PAIR, COLOR_BLACK, COLOR_WHITE);
+        // black on white for white pieces
+        init_pair(WHITE_PAIR, COLOR_BLACK, COLOR_WHITE);
 
-    // white on black for black pieces
-    init_pair(BLACK_PAIR, COLOR_WHITE, COLOR_BLACK);
-
-    redraw();
-
-    while (true) {
-        auto c = getch();
-        if (c == 10) {
-            runCommand();
-        }
-        else {
-            cmd_.push_back(static_cast<char>(c));
-        }
+        // white on black for black pieces
+        init_pair(BLACK_PAIR, COLOR_WHITE, COLOR_BLACK);
 
         redraw();
 
+        while (running_) {
+            auto c = getch();
+            if (c == 10) {
+                runCommand();
+            }
+            else if (c == KEY_BACKSPACE) {
+                if (!cmd_.empty()) {
+                    cmd_.pop_back();
+                }
+            }
+            else {
+                cmd_.push_back(static_cast<char>(c));
+            }
+
+            redraw();
+
+        }
     }
+    catch (...) {
+        endwin();
+        throw;
+    }
+
+    endwin();
 }
 
 void UserInterface::redraw()
@@ -147,31 +160,36 @@ void UserInterface::runCommand()
     std::vector<std::string> tokens;
     boost::split(tokens, cmd_, boost::is_any_of(" "));
 
-    if (tokens.size() != 2) {
-        msg_ = "Invalid number of params";
-        goto End;
+    if (tokens.size() == 1) {
+        auto cmd = boost::to_upper_copy<std::string>(tokens[0]);
+        if (cmd == "Q" || cmd == "QUIT" || cmd == "EXIT") {
+            running_ = false;
+        }
+    }
+    else if (tokens.size() == 2) {
+        auto from = positionFromString(tokens[0]);
+        auto to   = positionFromString(tokens[1]);
+
+        auto result = gc_.gameState.move(from, to);
+        switch (result) {
+        case GameState::Result::Success:
+            msg_ = "Move " + tokens[0] + " to " + tokens[1];
+            break;
+        case GameState::Result::WrongSide:
+            msg_ = "Wrong side";
+            break;
+        case GameState::Result::InvalidMove:
+            msg_ = "Couldn't move to " + tokens[1];
+            break;
+        case GameState::Result::NoPiece:
+            msg_ = "No piece at " + tokens[0];
+            break;
+        }
+    }
+    else {
+        msg_ = "Invalid command";
     }
 
-    auto from = positionFromString(tokens[0]);
-    auto to   = positionFromString(tokens[1]);
-
-    auto result = gc_.gameState.move(from, to);
-    switch (result) {
-    case GameState::Result::Success:
-        msg_ = "Move " + tokens[0] + " to " + tokens[1];
-        break;
-    case GameState::Result::WrongSide:
-        msg_ = "Wrong side";
-        break;
-    case GameState::Result::InvalidMove:
-        msg_ = "Couldn't move to " + tokens[1];
-        break;
-    case GameState::Result::NoPiece:
-        msg_ = "No piece at " + tokens[0];
-        break;
-    }
-
-End:
     cmd_.clear();
 }
 

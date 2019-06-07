@@ -92,6 +92,19 @@ TryResult Piece<SideType>::tryBackRight(Diag n, bool canTake)
 }
 
 template <typename SideType>
+template <typename Functor>
+void Piece<SideType>::sweep(BoardField & bf, Functor const & f)
+{
+    int dist = 0;
+    TryResult res;
+    do {
+        ++dist;
+        res = f(dist);
+        if (res.valid) bf |= res.bf;
+    } while (res.valid && !res.took);
+}
+
+template <typename SideType>
 template <uint8_t ShiftDistance, bool Forward>
 TryResult Piece<SideType>::impl(uint8_t n, bool canTake)
 {

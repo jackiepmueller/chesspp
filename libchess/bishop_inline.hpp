@@ -12,49 +12,10 @@ BoardField Bishop<Derived>::validMoves()
 
     BoardField bf = 0;
 
-    // forward left
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryForwardLeft(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
-
-    // forward right
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryForwardRight(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
-
-    // back left
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryBackLeft(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
-
-    // back right
-    {
-        int dist = 0;
-        TryResult res;
-        do {
-            ++dist;
-            res = derived.tryBackRight(dist, Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        } while (res.valid && !res.took); // stop if we would take the piece
-    }
+    derived.sweep(bf, std::bind(&Derived::tryForwardLeft,  &derived, std::placeholders::_1, Bool::CanTake));
+    derived.sweep(bf, std::bind(&Derived::tryForwardRight, &derived, std::placeholders::_1, Bool::CanTake));
+    derived.sweep(bf, std::bind(&Derived::tryBackLeft,     &derived, std::placeholders::_1, Bool::CanTake));
+    derived.sweep(bf, std::bind(&Derived::tryBackRight,    &derived, std::placeholders::_1, Bool::CanTake));
 
     return bf;
 }

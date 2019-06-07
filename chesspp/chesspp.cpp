@@ -1,5 +1,8 @@
 #include "chesspp.hpp"
 
+#include <iostream>
+#include <exception>
+
 using namespace Chess;
 
 ChessPP::ChessPP()
@@ -10,5 +13,16 @@ ChessPP::ChessPP()
 
 void ChessPP::run()
 {
-    ui_.run();
+    try {
+        ui_.run();
+    }
+    catch (std::runtime_error const & e) {
+        std::cerr << "caught runtime exception: " << e.what() << std::endl;
+    }
+    catch (std::exception const & e) {
+        std::cerr << "caught exception: " << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cerr << "caught unknown exception" << std::endl;
+    }
 }

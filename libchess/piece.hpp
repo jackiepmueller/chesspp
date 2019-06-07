@@ -164,6 +164,9 @@ struct Piece : PieceBase {
     inline TryResult tryBackLeft    (Diag n, bool canTake = Bool::CanTake);
     inline TryResult tryBackRight   (Diag n, bool canTake = Bool::CanTake);
 
+    template <typename Functor>
+    inline void sweep(BoardField & bf, Functor const & f);
+
 private:
     template <uint8_t ShiftDistance, bool Forward>
     inline TryResult impl(uint8_t n, bool canTake);
