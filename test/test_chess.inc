@@ -115,6 +115,15 @@ TEST(pawnMovement)
     // Can't go backwards
     TEST_ASSERT(!wP1.move(Seven, A));
     TEST_ASSERT(wP1.pos() == rankAndFileToBoardField(Eight, A));
+
+    // first move by two
+    auto & wP2 = gc.wP2;
+    TEST_ASSERT(wP2.move(Four, B));
+    TEST_ASSERT(wP2.pos() == rankAndFileToBoardField(Four, B));
+
+    // second move not by two
+    TEST_ASSERT(!wP2.move(Six, B));
+    TEST_ASSERT(wP2.pos() == rankAndFileToBoardField(Four, B));
 }
 ENDTEST(pawnMovement)
 

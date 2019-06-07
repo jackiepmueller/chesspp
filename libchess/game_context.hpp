@@ -1,7 +1,9 @@
 #ifndef GAME_CONTEXT_HPP
 #define GAME_CONTEXT_HPP
 
-#include "piece.hpp"
+#include "pawn.hpp"
+#include "rook.hpp"
+#include "bishop.hpp"
 #include "game_state.hpp"
 
 #include <vector>
@@ -23,6 +25,9 @@ struct GameContext {
     WhiteRook wR1;
     WhiteRook wR2;
 
+    WhiteBishop wB1;
+    WhiteBishop wB2;
+
     BlackPawn bP1;
     BlackPawn bP2;
     BlackPawn bP3;
@@ -34,6 +39,9 @@ struct GameContext {
 
     BlackRook bR1;
     BlackRook bR2;
+
+    BlackBishop bB1;
+    BlackBishop bB2;
 
     GameContext() 
         : wP1(rankAndFileToBoardField(Two, A), gameState)
@@ -48,6 +56,9 @@ struct GameContext {
         , wR1(rankAndFileToBoardField(One, A), gameState)
         , wR2(rankAndFileToBoardField(One, H), gameState)
 
+        , wB1(rankAndFileToBoardField(One, C), gameState)
+        , wB2(rankAndFileToBoardField(One, F), gameState)
+
         , bP1(rankAndFileToBoardField(Seven, H), gameState)
         , bP2(rankAndFileToBoardField(Seven, G), gameState)
         , bP3(rankAndFileToBoardField(Seven, F), gameState)
@@ -59,6 +70,9 @@ struct GameContext {
 
         , bR1(rankAndFileToBoardField(Eight, H), gameState)
         , bR2(rankAndFileToBoardField(Eight, A), gameState)
+
+        , bB1(rankAndFileToBoardField(Eight, C), gameState)
+        , bB2(rankAndFileToBoardField(Eight, F), gameState)
     { }
 
 };

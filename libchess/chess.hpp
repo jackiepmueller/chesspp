@@ -19,6 +19,7 @@
 #include "game_context.hpp"
 #include "game_state.hpp"
 #include "piece.hpp"
+#include "pawn.hpp"
 #include "util.hpp"
 
 namespace Chess {

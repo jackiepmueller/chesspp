@@ -1,5 +1,5 @@
-#ifndef CHESS_TYPES_HPP
-#define CHESS_TYPES_HPP
+#ifndef CHESS_PIECE_HPP
+#define CHESS_PIECE_HPP
 
 #include "bit_manipulation.hpp"
 #include "game_state.hpp"
@@ -163,10 +163,10 @@ struct Piece : PieceBase {
     { 
     }
 
-    TryResult tryForward(Rank n, bool canTake = Bool::CanTake);
-    TryResult tryBack   (Rank n, bool canTake = Bool::CanTake);
-    TryResult tryRight  (File n, bool canTake = Bool::CanTake);
-    TryResult tryLeft   (File n, bool canTake = Bool::CanTake);
+    inline TryResult tryForward(Rank n, bool canTake = Bool::CanTake);
+    inline TryResult tryBack   (Rank n, bool canTake = Bool::CanTake);
+    inline TryResult tryRight  (File n, bool canTake = Bool::CanTake);
+    inline TryResult tryLeft   (File n, bool canTake = Bool::CanTake);
 };
 
 struct FirstMoveConcept {
@@ -174,197 +174,6 @@ struct FirstMoveConcept {
     void setMoved() { assert(!moved_); moved_ = true; }
 private:
     bool moved_ = false;
-};
-
-template <typename Derived>
-struct Pawn : FirstMoveConcept {
-    Pawn() {
-        auto & derived = static_cast<Derived &>(*this);
-        derived.setIdentifier('P');
-    }
-
-    BoardField validMoves() {
-        auto & derived = static_cast<Derived &>(*this);
-
-        BoardField bf = 0;
-        auto res = derived.tryForward(1, !Bool::CanTake);
-        if (res.valid) bf |= res.bf;
-        if (!derived.isFirstMove()) {
-            res = derived.tryForward(2, !Bool::CanTake);
-            if (res.valid) bf |= res.bf;
-        }
-        // TODO check for diagonal attacks
-        return bf;
-    }
-
-    bool move(BoardField pos) {
-        assert(validPosition(pos));
-        auto const validMoves = this->validMoves();
-        auto & derived = static_cast<Derived &>(*this);
-        if (pos & validMoves) {
-            derived.setPos(pos);
-            if (derived.isFirstMove()) {
-                derived.setMoved();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    bool move(Rank rank, File file) {
-        return move(rankAndFileToBoardField(rank, file));
-    }
-};
-
-struct WhitePawn
-    : Piece<White>
-    , Pawn<WhitePawn>
-{
-    WhitePawn(BoardField startingPos, GameState & gameState)
-        : Piece<White>(startingPos, gameState)
-    { }
-
-    virtual bool move(BoardField bf) override {
-        return Pawn<WhitePawn>::move(bf);
-    }
-
-    virtual bool move(Rank rank, File file) override {
-        return Pawn<WhitePawn>::move(rank, file);
-    }
-};
-
-struct BlackPawn
-    : Piece<Black>
-    , Pawn<BlackPawn>
-{
-    BlackPawn(BoardField startingPos, GameState & gameState)
-        : Piece<Black>(startingPos, gameState)
-    { }
-
-    virtual bool move(BoardField bf) override {
-        return Pawn<BlackPawn>::move(bf);
-    }
-
-    virtual bool move(Rank rank, File file) override {
-        return Pawn<BlackPawn>::move(rank, file);
-    }
-};
-
-template <typename Derived>
-struct Rook : FirstMoveConcept {
-    Rook() {
-        auto & derived = static_cast<Derived &>(*this);
-        derived.setIdentifier('R');
-    }
-
-    BoardField validMoves() {
-        auto & derived = static_cast<Derived &>(*this);
-
-        BoardField bf = 0;
-
-        // forward
-        {
-            int dist = 0;
-            TryResult res;
-            do {
-                ++dist;
-                res = derived.tryForward(dist, Bool::CanTake);
-                if (res.valid) bf |= res.bf;
-            } while (res.valid && !res.took); // stop if we would take the piece
-        }
-
-        // backward
-        {
-            int dist = 0;
-            TryResult res;
-            do {
-                ++dist;
-                res = derived.tryBack(dist, Bool::CanTake);
-                if (res.valid) bf |= res.bf;
-            } while (res.valid && !res.took); // stop if we would take the piece
-        }
-
-        // left
-        {
-            int dist = 0;
-            TryResult res;
-            do {
-                ++dist;
-                res = derived.tryLeft(dist, Bool::CanTake);
-                if (res.valid) bf |= res.bf;
-            } while (res.valid && !res.took); // stop if we would take the piece
-        }
-
-        // right
-        {
-            int dist = 0;
-            TryResult res;
-            do {
-                ++dist;
-                res = derived.tryRight(dist, Bool::CanTake);
-                if (res.valid) bf |= res.bf;
-            } while (res.valid && !res.took); // stop if we would take the piece
-        }
-
-        return bf;
-    }
-
-    bool move(BoardField pos) {
-        assert(validPosition(pos));
-        auto const validMoves = this->validMoves();
-        auto & derived = static_cast<Derived &>(*this);
-        if (pos & validMoves) {
-            auto & pieceMap = derived.pieceMap();
-            auto piece = pieceMap[pos];
-            if (piece) {
-                piece->setPos(0);
-            }
-            derived.setPos(pos);
-            if (derived.isFirstMove()) {
-                derived.setMoved();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    bool move(Rank rank, File file) {
-        return move(rankAndFileToBoardField(rank, file));
-    }
-};
-
-struct WhiteRook
-    : Piece<White>
-    , Rook<WhiteRook>
-{
-    WhiteRook(BoardField startingPos, GameState & gameState)
-        : Piece<White>(startingPos, gameState)
-    { }
-
-    virtual bool move(BoardField bf) override {
-        return Rook<WhiteRook>::move(bf);
-    }
-
-    virtual bool move(Rank rank, File file) override {
-        return Rook<WhiteRook>::move(rank, file);
-    }
-};
-
-struct BlackRook
-    : Piece<Black>
-    , Rook<BlackRook>
-{
-    BlackRook(BoardField startingPos, GameState & gameState)
-        : Piece<Black>(startingPos, gameState)
-    { }
-
-    virtual bool move(BoardField bf) override {
-        return Rook<BlackRook>::move(bf);
-    }
-
-    virtual bool move(Rank rank, File file) override {
-        return Rook<BlackRook>::move(rank, file);
-    }
 };
 
 #include "piece_inline.hpp"
