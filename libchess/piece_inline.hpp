@@ -3,7 +3,7 @@ PieceBase::PieceBase(Side side, BoardField startingPos, GameState & gameState)
     , pos_(0)
     , startingPos_(startingPos)
     , gameState_(gameState)
-{ 
+{
     bool const occupied = (gameState_.board() & pos());
     assert(!occupied);
     if (occupied) {
@@ -35,6 +35,12 @@ void PieceBase::setPos(BoardField pos)
     if (alive()) pieceMap[pos_] = this;
 
     if (onSetPos_) onSetPos_();
+}
+
+template <typename SideType>
+Piece<SideType>::Piece(BoardField startingPos, GameState & gameState)
+    : PieceBase(SideType::side, startingPos, gameState)
+{
 }
 
 template <typename SideType>

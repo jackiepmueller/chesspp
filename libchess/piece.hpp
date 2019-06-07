@@ -143,10 +143,7 @@ private:
     BoardField pos_; // never modify directly
     BoardField const startingPos_;
     char identifier_;
-
-private:
     StateChangeEvent onSetPos_;
-
     GameState & gameState_;
 };
 
@@ -158,10 +155,7 @@ struct TryResult {
 
 template <typename SideType>
 struct Piece : PieceBase {
-    Piece(BoardField startingPos, GameState & gameState)
-        : PieceBase(SideType::side, startingPos, gameState)
-    { 
-    }
+    inline Piece(BoardField startingPos, GameState & gameState);
 
     inline TryResult tryForward(Rank n, bool canTake = Bool::CanTake);
     inline TryResult tryBack   (Rank n, bool canTake = Bool::CanTake);
