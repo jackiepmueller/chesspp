@@ -17,7 +17,13 @@ BoardField Pawn<Derived>::validMoves()
         res = derived.tryForward(2, !Bool::CanTake);
         if (res.valid) bf |= res.bf;
     }
-    // TODO check for diagonal attacks
+
+    // diagonal attack, must take
+    res = derived.tryForwardLeft(1, Bool::CanTake);
+    if (res.valid && res.took) bf |= res.bf;
+    res = derived.tryForwardRight(1, Bool::CanTake);
+    if (res.valid && res.took) bf |= res.bf;
+
     return bf;
 }
 
@@ -28,6 +34,11 @@ bool Pawn<Derived>::move(BoardField pos)
     auto const validMoves = this->validMoves();
     auto & derived = static_cast<Derived &>(*this);
     if (pos & validMoves) {
+        auto & pieceMap = derived.pieceMap();
+        auto piece = pieceMap[pos];
+        if (piece) {
+            piece->setPos(0);
+        }
         derived.setPos(pos);
         if (derived.isFirstMove()) {
             derived.setMoved();
