@@ -64,6 +64,13 @@ Result parse(GameContext & gc, std::string s)
             potentials = gc.king();
             break;
         default:
+            if (isFile(s[0])) {
+                potentials = gc.pawns();
+                mask &= fileMask(fileFromChar(s[0]));
+            }
+            else {
+                return result;
+            }
             break;
         }
 
