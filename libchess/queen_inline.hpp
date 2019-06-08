@@ -53,14 +53,19 @@ WhiteQueen::WhiteQueen(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool WhiteQueen::move(BoardField bf)
+bool WhiteQueen::move(BoardField bf)
 {
     return Queen<WhiteQueen>::move(bf);
 }
 
-inline bool WhiteQueen::move(Rank rank, File file)
+bool WhiteQueen::move(Rank rank, File file)
 {
     return Queen<WhiteQueen>::move(rank, file);
+}
+
+BoardField WhiteQueen::validMoves()
+{
+    return Queen<WhiteQueen>::validMoves();
 }
 
 BlackQueen::BlackQueen(BoardField startingPos, GameState & gameState)
@@ -68,12 +73,17 @@ BlackQueen::BlackQueen(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool BlackQueen::move(BoardField bf)
+bool BlackQueen::move(BoardField bf)
 {
     return Queen<BlackQueen>::move(bf);
 }
 
-inline bool BlackQueen::move(Rank rank, File file)
+bool BlackQueen::move(Rank rank, File file)
 {
     return Queen<BlackQueen>::move(rank, file);
+}
+
+BoardField BlackQueen::validMoves()
+{
+    return Queen<BlackQueen>::validMoves();
 }

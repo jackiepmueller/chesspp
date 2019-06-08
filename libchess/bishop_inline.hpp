@@ -49,14 +49,19 @@ WhiteBishop::WhiteBishop(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool WhiteBishop::move(BoardField bf)
+bool WhiteBishop::move(BoardField bf)
 {
     return Bishop<WhiteBishop>::move(bf);
 }
 
-inline bool WhiteBishop::move(Rank rank, File file)
+bool WhiteBishop::move(Rank rank, File file)
 {
     return Bishop<WhiteBishop>::move(rank, file);
+}
+
+BoardField WhiteBishop::validMoves()
+{
+    return Bishop<WhiteBishop>::validMoves();
 }
 
 BlackBishop::BlackBishop(BoardField startingPos, GameState & gameState)
@@ -64,12 +69,17 @@ BlackBishop::BlackBishop(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool BlackBishop::move(BoardField bf)
+bool BlackBishop::move(BoardField bf)
 {
     return Bishop<BlackBishop>::move(bf);
 }
 
-inline bool BlackBishop::move(Rank rank, File file)
+bool BlackBishop::move(Rank rank, File file)
 {
     return Bishop<BlackBishop>::move(rank, file);
+}
+
+BoardField BlackBishop::validMoves()
+{
+    return Bishop<BlackBishop>::validMoves();
 }

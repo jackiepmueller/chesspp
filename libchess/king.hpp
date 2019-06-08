@@ -24,6 +24,7 @@ struct WhiteKing
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 struct BlackKing
@@ -34,6 +35,7 @@ struct BlackKing
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 #include "king_inline.hpp"

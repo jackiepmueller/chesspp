@@ -86,14 +86,19 @@ WhiteKnight::WhiteKnight(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool WhiteKnight::move(BoardField bf)
+bool WhiteKnight::move(BoardField bf)
 {
     return Knight<WhiteKnight>::move(bf);
 }
 
-inline bool WhiteKnight::move(Rank rank, File file)
+bool WhiteKnight::move(Rank rank, File file)
 {
     return Knight<WhiteKnight>::move(rank, file);
+}
+
+BoardField WhiteKnight::validMoves()
+{
+    return Knight<WhiteKnight>::validMoves();
 }
 
 BlackKnight::BlackKnight(BoardField startingPos, GameState & gameState)
@@ -101,12 +106,17 @@ BlackKnight::BlackKnight(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool BlackKnight::move(BoardField bf)
+bool BlackKnight::move(BoardField bf)
 {
     return Knight<BlackKnight>::move(bf);
 }
 
-inline bool BlackKnight::move(Rank rank, File file)
+bool BlackKnight::move(Rank rank, File file)
 {
     return Knight<BlackKnight>::move(rank, file);
+}
+
+BoardField BlackKnight::validMoves()
+{
+    return Knight<BlackKnight>::validMoves();
 }

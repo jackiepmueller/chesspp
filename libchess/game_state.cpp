@@ -1,26 +1,28 @@
 #include "game_state.hpp"
 #include "piece.hpp"
 
-using namespace Chess;
+namespace Chess {
 
-GameState::Result GameState::move(BoardField from, BoardField to)
+GameState::Reason GameState::move(BoardField from, BoardField to)
 {
-    auto res = Result::Success;
+    auto res = Success;
     auto piece = pieceMap_[from];
     if (piece) {
         if (piece->side() != turn_) {
-            res = Result::WrongSide;
+            res = WrongSide;
         }
         else if (!piece->move(to)) {
-            res = Result::InvalidMove;
+            res = InvalidMove;
         }
         else {
             turn_ = otherSide(turn_);
         }
     }
     else {
-        res = Result::NoPiece;
+        res = NoPiece;
     }
 
     return res;
 }
+
+} // namespace Chess

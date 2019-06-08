@@ -102,6 +102,31 @@ struct GameContext {
         , bK (rankAndFileToBoardField(Eight, E), gameState)
     { }
 
+    PieceVector pawns(Side side) {
+        switch (side) {
+        case Side::White: return PieceVector { &wP1, &wP2, &wP3, &wP4, &wP5, &wP6, &wP7, &wP8 };
+        case Side::Black: return PieceVector { &bP1, &bP2, &bP3, &bP4, &bP5, &bP6, &bP7, &bP8 };
+        }
+    }
+
+    PieceVector pawns() {
+        return pawns(gameState.turn());
+    }
+
+    PieceVector rooks(Side side) {
+        switch (side) {
+        case Side::White: return PieceVector { &wR1, &wR2 };
+        case Side::Black: return PieceVector { &bR1, &bR2 };
+        }
+    }
+
+    PieceVector knights(Side side) {
+        switch (side) {
+        case Side::White: return PieceVector { &wN1, &wN2 };
+        case Side::Black: return PieceVector { &bN1, &bN2 };
+        }
+    }
+
 };
 
 } // namespace Chess

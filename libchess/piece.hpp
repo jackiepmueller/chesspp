@@ -118,6 +118,7 @@ struct PieceBase : private boost::noncopyable {
 
     virtual bool move(BoardField) = 0;
     virtual bool move(Rank rank, File file) = 0;
+    virtual BoardField validMoves() = 0;
 
     BoardField board() const {
         return gameState_.board();

@@ -24,6 +24,7 @@ struct WhiteQueen
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 struct BlackQueen
@@ -34,6 +35,7 @@ struct BlackQueen
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 #include "queen_inline.hpp"

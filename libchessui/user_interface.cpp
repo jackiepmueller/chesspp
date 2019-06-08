@@ -1,12 +1,13 @@
 #include "user_interface.hpp"
 #include "game_state.hpp"
+#include "san_parser.hpp"
 
 #include <boost/algorithm/string.hpp>
 
 #include <functional>
 
-using namespace Chess;
-using namespace Chess::UI;
+namespace Chess {
+namespace UI {
 
 static constexpr Position TITLE(1, 13);
 static constexpr Position PROMPT(34, 1);
@@ -158,36 +159,62 @@ void UserInterface::redraw()
 void UserInterface::runCommand()
 {
     std::vector<std::string> tokens;
-    boost::split(tokens, cmd_, boost::is_any_of(" "));
+    boost::trim(cmd_);
+    boost::split(tokens, cmd_, boost::is_any_of(" "), boost::token_compress_on);
+
+    SANParser::Result result;
 
     if (tokens.size() == 1) {
         auto cmd = boost::to_upper_copy<std::string>(tokens[0]);
         if (cmd == "Q" || cmd == "QUIT" || cmd == "EXIT") {
             running_ = false;
         }
-    }
-    else if (tokens.size() == 2) {
-        auto from = positionFromString(tokens[0]);
-        auto to   = positionFromString(tokens[1]);
-
-        auto result = gc_.gameState.move(from, to);
-        switch (result) {
-        case GameState::Result::Success:
-            msg_ = "Move " + tokens[0] + " to " + tokens[1];
-            break;
-        case GameState::Result::WrongSide:
-            msg_ = "Wrong side";
-            break;
-        case GameState::Result::InvalidMove:
-            msg_ = "Couldn't move to " + tokens[1];
-            break;
-        case GameState::Result::NoPiece:
-            msg_ = "No piece at " + tokens[0];
-            break;
+        else if (cmd.empty()) {
+            cmd_.clear();
+            return;
+        }
+        else {
+            result = SANParser::parse(gc_, tokens[0]);
         }
     }
-    else {
-        msg_ = "Invalid command";
+    else if (tokens.size() == 2) {
+        auto from = tokens[0];
+        auto to   = tokens[1];
+
+        result = SANParser::parse(from, to);
+    }
+
+    switch (result.reason) {
+    case SANParser::Success:
+    {
+        auto from = positionToString(result.from);
+        auto to   = positionToString(result.to);
+
+        switch (gc_.gameState.move(result.from, result.to)) {
+        case GameState::Success:
+            msg_ = "Move " + from + " to " + to;
+            break;
+        case GameState::WrongSide:
+            msg_ = "Wrong side";
+            break;
+        case GameState::InvalidMove:
+            msg_ = "Couldn't move to " + to;
+            break;
+        case GameState::NoPiece:
+            msg_ = "No piece at " + from;
+            break;
+        }
+        break;
+    }
+    case SANParser::Ambiguous:
+        msg_ = "Ambiguous move";
+        break;
+    case SANParser::Invalid:
+        msg_ = "Invalid move";
+        break;
+    case SANParser::Fail:
+        msg_ = "Parse failure";
+        break;
     }
 
     cmd_.clear();
@@ -212,3 +239,6 @@ Position UserInterface::positionFromBoardField(BoardField bf)
 
     return pos;
 }
+
+} // namespace UI
+} // namespace Chess

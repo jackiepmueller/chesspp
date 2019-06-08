@@ -3,7 +3,7 @@
 #include <iostream>
 #include <exception>
 
-using namespace Chess;
+namespace Chess {
 
 ChessPP::ChessPP()
     : gc_()
@@ -26,3 +26,5 @@ void ChessPP::run()
         std::cerr << "caught unknown exception" << std::endl;
     }
 }
+
+} // namespace Chess

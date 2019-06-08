@@ -59,14 +59,19 @@ WhitePawn::WhitePawn(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool WhitePawn::move(BoardField bf)
+bool WhitePawn::move(BoardField bf)
 {
     return Pawn<WhitePawn>::move(bf);
 }
 
-inline bool WhitePawn::move(Rank rank, File file)
+bool WhitePawn::move(Rank rank, File file)
 {
     return Pawn<WhitePawn>::move(rank, file);
+}
+
+BoardField WhitePawn::validMoves()
+{
+    return Pawn<WhitePawn>::validMoves();
 }
 
 BlackPawn::BlackPawn(BoardField startingPos, GameState & gameState)
@@ -74,12 +79,17 @@ BlackPawn::BlackPawn(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool BlackPawn::move(BoardField bf)
+bool BlackPawn::move(BoardField bf)
 {
     return Pawn<BlackPawn>::move(bf);
 }
 
-inline bool BlackPawn::move(Rank rank, File file)
+bool BlackPawn::move(Rank rank, File file)
 {
     return Pawn<BlackPawn>::move(rank, file);
+}
+
+BoardField BlackPawn::validMoves()
+{
+    return Pawn<BlackPawn>::validMoves();
 }

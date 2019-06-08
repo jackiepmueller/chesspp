@@ -23,6 +23,7 @@ struct WhiteRook
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 struct BlackRook
@@ -33,6 +34,7 @@ struct BlackRook
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 #include "rook_inline.hpp"

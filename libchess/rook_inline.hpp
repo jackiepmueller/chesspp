@@ -52,14 +52,19 @@ WhiteRook::WhiteRook(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool WhiteRook::move(BoardField bf)
+bool WhiteRook::move(BoardField bf)
 {
     return Rook<WhiteRook>::move(bf);
 }
 
-inline bool WhiteRook::move(Rank rank, File file)
+bool WhiteRook::move(Rank rank, File file)
 {
     return Rook<WhiteRook>::move(rank, file);
+}
+
+BoardField WhiteRook::validMoves()
+{
+    return Rook<WhiteRook>::validMoves();
 }
 
 BlackRook::BlackRook(BoardField startingPos, GameState & gameState)
@@ -67,12 +72,17 @@ BlackRook::BlackRook(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool BlackRook::move(BoardField bf)
+bool BlackRook::move(BoardField bf)
 {
     return Rook<BlackRook>::move(bf);
 }
 
-inline bool BlackRook::move(Rank rank, File file)
+bool BlackRook::move(Rank rank, File file)
 {
     return Rook<BlackRook>::move(rank, file);
+}
+
+BoardField BlackRook::validMoves()
+{
+    return Rook<BlackRook>::validMoves();
 }

@@ -24,6 +24,7 @@ struct WhiteKnight
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 struct BlackKnight
@@ -34,6 +35,7 @@ struct BlackKnight
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 #include "knight_inline.hpp"

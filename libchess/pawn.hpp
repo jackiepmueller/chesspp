@@ -25,6 +25,7 @@ struct WhitePawn
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 struct BlackPawn
@@ -35,6 +36,7 @@ struct BlackPawn
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 #include "pawn_inline.hpp"

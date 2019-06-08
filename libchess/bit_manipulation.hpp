@@ -79,6 +79,18 @@ inline BoardField positionFromString(std::string s)
     return rankAndFileToBoardField(rank, file);
 }
 
+inline std::string positionToString(BoardField bf)
+{
+    auto rank = rankFromBoardField(bf);
+    auto file = fileFromBoardField(bf);
+
+    std::string s;
+    s.push_back(file + 65);
+    s.push_back(rank + 49);
+
+    return s;
+}
+
 } // namespace Chess
 
 #endif

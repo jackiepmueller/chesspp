@@ -54,14 +54,19 @@ WhiteKing::WhiteKing(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool WhiteKing::move(BoardField bf)
+bool WhiteKing::move(BoardField bf)
 {
     return King<WhiteKing>::move(bf);
 }
 
-inline bool WhiteKing::move(Rank rank, File file)
+bool WhiteKing::move(Rank rank, File file)
 {
     return King<WhiteKing>::move(rank, file);
+}
+
+BoardField WhiteKing::validMoves()
+{
+    return King<WhiteKing>::validMoves();
 }
 
 BlackKing::BlackKing(BoardField startingPos, GameState & gameState)
@@ -69,12 +74,17 @@ BlackKing::BlackKing(BoardField startingPos, GameState & gameState)
 {
 }
 
-inline bool BlackKing::move(BoardField bf)
+bool BlackKing::move(BoardField bf)
 {
     return King<BlackKing>::move(bf);
 }
 
-inline bool BlackKing::move(Rank rank, File file)
+bool BlackKing::move(Rank rank, File file)
 {
     return King<BlackKing>::move(rank, file);
+}
+
+BoardField BlackKing::validMoves()
+{
+    return King<BlackKing>::validMoves();
 }

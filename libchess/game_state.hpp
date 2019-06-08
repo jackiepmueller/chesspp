@@ -21,6 +21,7 @@ inline Side otherSide(Side side) {
 struct PieceBase;
 
 using PieceVector = std::vector<PieceBase *>;
+using PieceVectorConst = std::vector<PieceBase const *>;
 
 struct GameState {
     BoardField board() const {
@@ -51,14 +52,14 @@ struct GameState {
         return turn_;
     }
 
-    enum class Result {
+    enum Reason {
         Success,
         InvalidMove,
         WrongSide,
         NoPiece
     };
 
-    Result move(BoardField from, BoardField to);
+    Reason move(BoardField from, BoardField to);
 
 private:
     PieceMap pieceMap_;

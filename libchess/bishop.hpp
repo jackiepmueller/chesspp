@@ -24,6 +24,7 @@ struct WhiteBishop
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 struct BlackBishop
@@ -34,6 +35,7 @@ struct BlackBishop
 
     inline virtual bool move(BoardField bf) override;
     inline virtual bool move(Rank rank, File file) override;
+    inline virtual BoardField validMoves() override;
 };
 
 #include "bishop_inline.hpp"
