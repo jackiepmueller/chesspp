@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cd build
-make clean
+ninja clean
