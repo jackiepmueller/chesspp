@@ -152,6 +152,8 @@ struct TryResult {
 
 template <typename SideType>
 struct Piece : PieceBase {
+    using Side = SideType;
+
     inline Piece(BoardField startingPos, GameState & gameState);
 
     inline TryResult tryForward(Rank n, bool canTake = Bool::CanTake);

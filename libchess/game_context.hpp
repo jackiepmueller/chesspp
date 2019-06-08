@@ -3,6 +3,7 @@
 
 #include "pawn.hpp"
 #include "rook.hpp"
+#include "knight.hpp"
 #include "bishop.hpp"
 #include "queen.hpp"
 #include "game_state.hpp"
@@ -26,6 +27,9 @@ struct GameContext {
     WhiteRook wR1;
     WhiteRook wR2;
 
+    WhiteKnight wN1;
+    WhiteKnight wN2;
+
     WhiteBishop wB1;
     WhiteBishop wB2;
 
@@ -42,6 +46,9 @@ struct GameContext {
 
     BlackRook bR1;
     BlackRook bR2;
+
+    BlackKnight bN1;
+    BlackKnight bN2;
 
     BlackBishop bB1;
     BlackBishop bB2;
@@ -61,6 +68,9 @@ struct GameContext {
         , wR1(rankAndFileToBoardField(One, A), gameState)
         , wR2(rankAndFileToBoardField(One, H), gameState)
 
+        , wN1(rankAndFileToBoardField(One, B), gameState)
+        , wN2(rankAndFileToBoardField(One, G), gameState)
+
         , wB1(rankAndFileToBoardField(One, C), gameState)
         , wB2(rankAndFileToBoardField(One, F), gameState)
 
@@ -77,6 +87,9 @@ struct GameContext {
 
         , bR1(rankAndFileToBoardField(Eight, H), gameState)
         , bR2(rankAndFileToBoardField(Eight, A), gameState)
+
+        , bN1(rankAndFileToBoardField(Eight, G), gameState)
+        , bN2(rankAndFileToBoardField(Eight, B), gameState)
 
         , bB1(rankAndFileToBoardField(Eight, C), gameState)
         , bB2(rankAndFileToBoardField(Eight, F), gameState)
