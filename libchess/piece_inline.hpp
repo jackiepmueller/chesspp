@@ -27,8 +27,10 @@ void PieceBase::setPos(BoardField pos)
     auto & board = gameState_.board();
     auto & pieceMap = gameState_.pieceMap();
 
-    pieceMap[pos_] = nullptr;
-    board &= ~pos_;
+    if (pos_) {
+        pieceMap[pos_] = nullptr;
+        board &= ~pos_;
+    }
     board |= pos;
     pos_ = pos;
 

@@ -2,6 +2,7 @@
 #define GAME_STATE_HPP
 
 #include "bit_manipulation.hpp"
+#include "piece_map.hpp"
 
 #include <unordered_map>
 #include <vector>
@@ -19,7 +20,6 @@ inline Side otherSide(Side side) {
 
 struct PieceBase;
 
-using PieceMap = std::unordered_map<BoardField, PieceBase *>;
 using PieceVector = std::vector<PieceBase *>;
 
 struct GameState {
