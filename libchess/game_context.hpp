@@ -6,6 +6,7 @@
 #include "knight.hpp"
 #include "bishop.hpp"
 #include "queen.hpp"
+#include "king.hpp"
 #include "game_state.hpp"
 
 #include <vector>
@@ -34,6 +35,7 @@ struct GameContext {
     WhiteBishop wB2;
 
     WhiteQueen wQ;
+    WhiteKing  wK;
 
     BlackPawn bP1;
     BlackPawn bP2;
@@ -54,6 +56,7 @@ struct GameContext {
     BlackBishop bB2;
 
     BlackQueen bQ;
+    BlackKing  bK;
 
     GameContext() 
         : wP1(rankAndFileToBoardField(Two, A), gameState)
@@ -75,6 +78,7 @@ struct GameContext {
         , wB2(rankAndFileToBoardField(One, F), gameState)
 
         , wQ (rankAndFileToBoardField(One, D), gameState)
+        , wK (rankAndFileToBoardField(One, E), gameState)
 
         , bP1(rankAndFileToBoardField(Seven, H), gameState)
         , bP2(rankAndFileToBoardField(Seven, G), gameState)
@@ -95,6 +99,7 @@ struct GameContext {
         , bB2(rankAndFileToBoardField(Eight, F), gameState)
 
         , bQ (rankAndFileToBoardField(Eight, D), gameState)
+        , bK (rankAndFileToBoardField(Eight, E), gameState)
     { }
 
 };
