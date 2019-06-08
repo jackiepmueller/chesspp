@@ -30,6 +30,9 @@ static constexpr File F = 5;
 static constexpr File G = 6;
 static constexpr File H = 7;
 
+static constexpr Rank InvalidRank = 8;
+static constexpr File InvalidFile = 8;
+
 // 1 and only 1 bit set
 inline bool validPosition(BoardField bf)
 {

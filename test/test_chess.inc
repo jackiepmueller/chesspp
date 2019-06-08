@@ -154,3 +154,11 @@ TEST(side)
     TEST_ASSERT(bP1.side() == Side::Black);
 }
 ENDTEST(side)
+
+TEST(sanParser)
+{
+    GameContext gc;
+
+    SANParser::parse(gc, "Ra4");
+}
+ENDTEST(sanParser)

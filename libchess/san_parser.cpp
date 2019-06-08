@@ -1,4 +1,5 @@
 #include "san_parser.hpp"
+#include "util.hpp"
 
 namespace Chess {
 namespace SANParser {
@@ -8,6 +9,16 @@ Result parse(GameContext & gc, std::string s)
     Result result;
 
     if (s.size() < 2) {
+        return result;
+    }
+
+    if (s == "0-0") {
+        // TODO king side castle
+        return result;
+    }
+
+    if (s == "0-0-0") {
+        // TODO queen side castle
         return result;
     }
 
@@ -33,13 +44,57 @@ Result parse(GameContext & gc, std::string s)
             }
         }
     }
+    else {
+        switch (s[0]) {
+        case 'R':
+            potentials = gc.rooks();
+            break;
+        case 'N':
+            potentials = gc.knights();
+            break;
+        default:
+            break;
+        }
+
+        // TODO: do this with rank and file masking
+        if (s.size() == 2) {
+            if (isFile(s[1])) {
+                auto file = fileFromChar(s[1]);
+                auto it = potentials.begin();
+                while (it != potentials.end()) {
+                    auto piece = *it;
+                    if (piece->file() != file) {
+                        it = potentials.erase(it);
+                    }
+                    else {
+                        ++it;
+                    }
+                }
+            }
+            else if (isRank(s[1])) {
+                auto rank = rankFromChar(s[1]);
+                auto it = potentials.begin();
+                while (it != potentials.end()) {
+                    auto piece = *it;
+                    if (piece->rank() != rank) {
+                        it = potentials.erase(it);
+                    }
+                    else {
+                        ++it;
+                    }
+                }
+            }
+            else {
+                return result;
+            }
+        }
+    }
 
     /////////////////////////////////
     // Here down should be generic //
     /////////////////////////////////
-    auto it  = potentials.begin();
-    auto end = potentials.end();
-    while (it != end) {
+    auto it = potentials.begin();
+    while (it != potentials.end()) {
         auto piece = *it;
         if (!(piece->validMoves() & dest)) {
             it = potentials.erase(it);

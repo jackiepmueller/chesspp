@@ -1,6 +1,7 @@
 #include "test.hpp"
 
 #include "chess.hpp"
+#include "san_parser.hpp"
 
 #include <cassert>
 #include <iostream>

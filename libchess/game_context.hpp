@@ -119,12 +119,19 @@ struct GameContext {
         case Side::Black: return PieceVector { &bR1, &bR2 };
         }
     }
+    PieceVector rooks() {
+        return rooks(gameState.turn());
+    }
 
     PieceVector knights(Side side) {
         switch (side) {
         case Side::White: return PieceVector { &wN1, &wN2 };
         case Side::Black: return PieceVector { &bN1, &bN2 };
         }
+    }
+
+    PieceVector knights() {
+        return knights(gameState.turn());
     }
 
 };

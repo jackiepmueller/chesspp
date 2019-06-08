@@ -2,7 +2,9 @@
 
 #include <cassert>
 
-char const * Chess::rankToString(Rank rank)
+namespace Chess {
+
+char const * rankToString(Rank rank)
 {
     switch (rank) {
     case One:
@@ -27,7 +29,7 @@ char const * Chess::rankToString(Rank rank)
     }
 }
 
-char const * Chess::fileToString(File file)
+char const * fileToString(File file)
 {
     switch (file) {
     case A:
@@ -51,3 +53,29 @@ char const * Chess::fileToString(File file)
         return "#";
     }
 }
+
+bool isFile(char c)
+{
+    c = std::toupper(c);
+    return c >= 'A' && c <= 'H';
+}
+
+bool isRank(char c)
+{
+    return c >= '1' && c <= '7';
+}
+
+File fileFromChar(char c)
+{
+    assert(isFile(c));
+    c = std::toupper(c);
+    return c - 65;
+}
+
+Rank rankFromChar(char c)
+{
+    assert(isRank(c));
+    return c - 49;
+}
+
+} // namespace Chess
