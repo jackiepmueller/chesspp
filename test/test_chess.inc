@@ -159,6 +159,55 @@ TEST(sanParser)
 {
     GameContext gc;
 
-    SANParser::parse(gc, "Ra4");
+    {
+        auto res = SANParser::parse(gc, "Ra4");
+        TEST_ASSERT(res.reason == SANParser::Invalid);
+
+        TEST_ASSERT(gc.wP1.move(Four, A));
+        TEST_ASSERT(gc.wP8.move(Four, H));
+        TEST_ASSERT(gc.wR1.move(Three, A));
+
+        res = SANParser::parse(gc, "Rh3");
+        TEST_ASSERT(res.reason == SANParser::Ambiguous);
+
+        res = SANParser::parse(gc, "Rah3");
+        TEST_ASSERT(res.reason == SANParser::Success);
+
+        res = SANParser::parse(gc, "Rhh3");
+        TEST_ASSERT(res.reason == SANParser::Success);
+
+        res = SANParser::parse(gc, "R3h3");
+        TEST_ASSERT(res.reason == SANParser::Success);
+
+        res = SANParser::parse(gc, "Ra3h3");
+        TEST_ASSERT(res.reason == SANParser::Success);
+
+        // pawn in the way
+        res = SANParser::parse(gc, "Rh1h4");
+        TEST_ASSERT(res.reason == SANParser::Invalid);
+    }
 }
 ENDTEST(sanParser)
+
+TEST(fileMask)
+{
+    GameContext gc;
+    auto mask = fileMask(D);
+
+    TEST_ASSERT(gc.wP4.pos() & mask);
+    TEST_ASSERT(gc.wQ.pos() & mask);
+    TEST_ASSERT(!(gc.wK.pos() & mask));
+}
+ENDTEST(fileMask)
+
+TEST(rankMask)
+{
+    GameContext gc;
+    auto mask = rankMask(Two);
+
+    TEST_ASSERT(gc.wP1.pos() & mask);
+    TEST_ASSERT(gc.wP4.pos() & mask);
+    TEST_ASSERT(!(gc.wQ.pos() & mask));
+    TEST_ASSERT(!(gc.wK.pos() & mask));
+}
+ENDTEST(fileMask)

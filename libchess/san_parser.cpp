@@ -45,6 +45,8 @@ Result parse(GameContext & gc, std::string s)
         }
     }
     else {
+        BoardField mask = -1;
+
         switch (s[0]) {
         case 'R':
             potentials = gc.rooks();
@@ -52,40 +54,50 @@ Result parse(GameContext & gc, std::string s)
         case 'N':
             potentials = gc.knights();
             break;
+        case 'B':
+            potentials = gc.bishops();
+            break;
+        case 'Q':
+            potentials = gc.queen();
+            break;
+        case 'K':
+            potentials = gc.king();
+            break;
         default:
             break;
         }
 
-        // TODO: do this with rank and file masking
+        // collect masks
         if (s.size() == 2) {
             if (isFile(s[1])) {
-                auto file = fileFromChar(s[1]);
-                auto it = potentials.begin();
-                while (it != potentials.end()) {
-                    auto piece = *it;
-                    if (piece->file() != file) {
-                        it = potentials.erase(it);
-                    }
-                    else {
-                        ++it;
-                    }
-                }
+                mask &= fileMask(fileFromChar(s[1]));
             }
             else if (isRank(s[1])) {
-                auto rank = rankFromChar(s[1]);
-                auto it = potentials.begin();
-                while (it != potentials.end()) {
-                    auto piece = *it;
-                    if (piece->rank() != rank) {
-                        it = potentials.erase(it);
-                    }
-                    else {
-                        ++it;
-                    }
-                }
+                mask &= rankMask(rankFromChar(s[1]));
             }
             else {
                 return result;
+            }
+        }
+        else if (s.size() == 3) {
+            if (isFile(s[1]) && isRank(s[2])) {
+                mask &= fileMask(fileFromChar(s[1]));
+                mask &= rankMask(rankFromChar(s[2]));
+            }
+            else {
+                return result;
+            }
+        }
+
+        // apply mask
+        auto it = potentials.begin();
+        while (it != potentials.end()) {
+            auto piece = *it;
+            if (!(piece->pos() & mask)) {
+                it = potentials.erase(it);
+            }
+            else {
+                ++it;
             }
         }
     }

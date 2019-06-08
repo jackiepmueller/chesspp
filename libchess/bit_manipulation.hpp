@@ -94,6 +94,15 @@ inline std::string positionToString(BoardField bf)
     return s;
 }
 
+inline constexpr BoardField fileMask(File file)
+{
+    return 0b00000001000000010000000100000001000000010000000100000001 << file;
+}
+
+inline constexpr BoardField rankMask(Rank rank) {
+    return 0b00000000000000000000000000000000000000000000000011111111 << (rank * 8);
+}
+
 } // namespace Chess
 
 #endif
