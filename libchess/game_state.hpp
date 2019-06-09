@@ -4,7 +4,6 @@
 #include "bit_manipulation.hpp"
 #include "piece_map.hpp"
 
-#include <unordered_map>
 #include <vector>
 
 namespace Chess {

@@ -6,6 +6,16 @@
 
 #include <string>
 
+// Parse standard algebraic notation (SAN) into a from/to move pair.
+//
+// Implementation notes:
+//
+//      * More verbose instructions are accepted even when a terser version
+//      would be sufficient. e.g. Ra1a3 instead of Ra3.
+//      * Pawn captures such as ed5 are accepted even in a non capturing
+//      scenario. e.g. ee5 
+//      * Captures are not notated differently. (typically seen as Bxe5 or B:e5)
+
 namespace Chess {
 namespace SANParser {
 
