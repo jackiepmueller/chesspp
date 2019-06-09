@@ -57,6 +57,29 @@ static void drawRanks()
     }
 }
 
+static void drawBoard()
+{
+    attron(COLOR_PAIR(WHITE_PAIR));
+    {
+        auto drawWhiteGrid = [](Position pos) {
+            for (size_t k = 0; k < 4; ++k) {
+                for (size_t j = 0; j < 4; ++j) {
+                    for (size_t i = 0; i < 3; ++i) {
+                        mvprintw(pos.row + i - k * 6, pos.col + j * 6, "   ");
+                    }
+                }
+            }
+        };
+
+        drawWhiteGrid(Position(26, 4)); // from A1
+        drawWhiteGrid(Position(23, 7)); // from B2
+    }
+    attroff(COLOR_PAIR(WHITE_PAIR));
+
+    attron(COLOR_PAIR(BLACK_PAIR));
+    attroff(COLOR_PAIR(BLACK_PAIR));
+}
+
 static void drawTurnIndicators(Side turn)
 {
     mvprintw(32, 1, "W( ) B( ) : ");
@@ -125,6 +148,7 @@ void UserInterface::redraw()
     drawPrompt();
     drawFiles();
     drawRanks();
+    drawBoard();
     drawTurnIndicators(gc_.gameState.turn());
 
     // dynamic content

@@ -75,7 +75,9 @@ Result parse(GameContext & gc, std::string s)
         }
 
         // collect masks
-        if (s.size() == 2) {
+        if (s.size() == 1) {
+        }
+        else if (s.size() == 2) {
             if (isFile(s[1])) {
                 mask &= fileMask(fileFromChar(s[1]));
             }
@@ -94,6 +96,9 @@ Result parse(GameContext & gc, std::string s)
             else {
                 return result;
             }
+        }
+        else {
+            return result;
         }
 
         // apply mask

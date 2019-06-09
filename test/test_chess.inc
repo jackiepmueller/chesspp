@@ -65,7 +65,8 @@ ENDTEST(fileFromBoardField)
 
 TEST(positionFromString)
 {
-    TEST_ASSERT(rankAndFileToBoardField(One, A) == positionFromString("A1"));
+    TEST_ASSERT(rankAndFileToBoardField(One,  A) == positionFromString("A1"));
+    TEST_ASSERT(rankAndFileToBoardField(Five, H) == positionFromString("H5"));
 }
 ENDTEST(positionFromString)
 
@@ -155,11 +156,34 @@ TEST(side)
 }
 ENDTEST(side)
 
-TEST(sanParser)
+TEST(fileMask)
 {
     GameContext gc;
+    auto mask = fileMask(D);
 
+    TEST_ASSERT(gc.wP4.pos() & mask);
+    TEST_ASSERT(gc.wQ.pos() & mask);
+    TEST_ASSERT(!(gc.wK.pos() & mask));
+}
+ENDTEST(fileMask)
+
+TEST(rankMask)
+{
+    GameContext gc;
+    auto mask = rankMask(Two);
+
+    TEST_ASSERT(gc.wP1.pos() & mask);
+    TEST_ASSERT(gc.wP4.pos() & mask);
+    TEST_ASSERT(!(gc.wQ.pos() & mask));
+    TEST_ASSERT(!(gc.wK.pos() & mask));
+}
+ENDTEST(rankMask)
+
+TEST(sanParser)
+{
+    // Rook movement with ambiguity
     {
+        GameContext gc;
         auto res = SANParser::parse(gc, "Ra4");
         TEST_ASSERT(res.reason == SANParser::Invalid);
 
@@ -186,28 +210,20 @@ TEST(sanParser)
         res = SANParser::parse(gc, "Rh1h4");
         TEST_ASSERT(res.reason == SANParser::Invalid);
     }
+
+    // Pawn attack
+    {
+        GameContext gc;
+
+        TEST_ASSERT(gc.wP4.move(Four, D));
+        TEST_ASSERT(gc.bP4.move(Five, E));
+
+        auto res = SANParser::parse(gc, "de5");
+        TEST_ASSERT(res.reason == SANParser::Success);
+
+        TEST_ASSERT(gc.gameState.move(res.from, res.to) == GameState::Success);
+        TEST_ASSERT(gc.wP4.pos() == rankAndFileToBoardField(Five, E));
+        TEST_ASSERT(!gc.bP4.alive());
+    }
 }
 ENDTEST(sanParser)
-
-TEST(fileMask)
-{
-    GameContext gc;
-    auto mask = fileMask(D);
-
-    TEST_ASSERT(gc.wP4.pos() & mask);
-    TEST_ASSERT(gc.wQ.pos() & mask);
-    TEST_ASSERT(!(gc.wK.pos() & mask));
-}
-ENDTEST(fileMask)
-
-TEST(rankMask)
-{
-    GameContext gc;
-    auto mask = rankMask(Two);
-
-    TEST_ASSERT(gc.wP1.pos() & mask);
-    TEST_ASSERT(gc.wP4.pos() & mask);
-    TEST_ASSERT(!(gc.wQ.pos() & mask));
-    TEST_ASSERT(!(gc.wK.pos() & mask));
-}
-ENDTEST(fileMask)

@@ -18,8 +18,9 @@
 #include "bit_manipulation.hpp"
 #include "game_context.hpp"
 #include "game_state.hpp"
-#include "piece.hpp"
 #include "pawn.hpp"
+#include "piece.hpp"
+#include "san_parser.hpp"
 #include "util.hpp"
 
 namespace Chess {
