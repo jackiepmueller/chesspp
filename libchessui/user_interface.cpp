@@ -9,6 +9,31 @@
 namespace Chess {
 namespace UI {
 
+auto help = R"*^*^*(
+
+ Chesspp, a command line chess game     
+
+ Moves can be entered using standard
+ algebraic notation:
+
+    d4  (moves pawn at d2 to d4)
+    Rd3 (moves rook to d3)
+
+ Ambiguous moves can be disambiguated by
+ supplying a rank and/or file:
+
+    Rad3  (moves rook on file A to d3)
+    R1d3  (moves rook on rank 1 to d3)
+    Ra1d3 (moves rook at A1 to d3)
+
+ Alternatively, a from/to pair can be supplied:
+
+    d2 d4 (moves the piece at d2 to d4)
+
+ * press any key to return.
+
+)*^*^*";
+
 static constexpr Position TITLE(1, 13);
 static constexpr Position PROMPT(34, 1);
 static constexpr Position ENTRY(34, 3);
@@ -20,6 +45,11 @@ static constexpr Position MESSAGE(32, 13);
 
 static constexpr int WHITE_PAIR = 1;
 static constexpr int BLACK_PAIR = 2;
+
+static void drawHelp()
+{
+    mvprintw(0, 0, help);
+}
 
 static void drawTitle()
 {
@@ -111,10 +141,14 @@ void UserInterface::run()
         // white on black for black pieces
         init_pair(BLACK_PAIR, COLOR_WHITE, COLOR_BLACK);
 
-        redraw();
-
         while (running_) {
+            redraw();
+
             auto c = getch();
+            if (showingHelp_) {
+                showingHelp_ = false;
+                continue;
+            }
             if (c == 10) {
                 runCommand();
             }
@@ -126,9 +160,6 @@ void UserInterface::run()
             else {
                 cmd_.push_back(static_cast<char>(c));
             }
-
-            redraw();
-
         }
     }
     catch (...) {
@@ -142,6 +173,11 @@ void UserInterface::run()
 void UserInterface::redraw()
 {
     clear();
+
+    if (showingHelp_) {
+        drawHelp();
+        return;
+    }
 
     // static content
     drawTitle();
@@ -192,6 +228,11 @@ void UserInterface::runCommand()
         auto cmd = boost::to_upper_copy<std::string>(tokens[0]);
         if (cmd == "Q" || cmd == "QUIT" || cmd == "EXIT") {
             running_ = false;
+        }
+        else if (cmd == "H" || cmd == "HELP") {
+            showingHelp_ = true;
+            cmd_.clear();
+            return;
         }
         else if (cmd.empty()) {
             cmd_.clear();

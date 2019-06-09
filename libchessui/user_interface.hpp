@@ -76,6 +76,7 @@ private:
     Position positionFromBoardField(Chess::BoardField bf);
 
     bool running_ = true;
+    bool showingHelp_ = false;
     std::string cmd_;
     std::string msg_;
     GameContext & gc_;
