@@ -101,8 +101,8 @@ static void drawBoard()
             }
         };
 
-        drawWhiteGrid(Position(26, 4)); // from A1
-        drawWhiteGrid(Position(23, 7)); // from B2
+        drawWhiteGrid(Position(26, 7)); // from B1
+        drawWhiteGrid(Position(23, 4)); // from A2
     }
     attroff(COLOR_PAIR(WHITE_PAIR));
 
